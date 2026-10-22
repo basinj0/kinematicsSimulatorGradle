@@ -2,6 +2,7 @@ package classes
 
 import com.sun.org.apache.xalan.internal.lib.ExsltDatetime.time
 import interfaces.Body
+import java.lang.Thread.sleep
 import kotlin.text.toDoubleOrNull
 import kotlin.time.TimeSource
 import kotlin.math.round
@@ -89,6 +90,7 @@ class userInterface() {
         val timeSource = TimeSource.Monotonic
         var lastTime = lastTime
         var simulationTime = 0.0
+        val history = dataCollector()
 
         while (true) {
             val elapsed = lastTime.elapsedNow()
@@ -103,15 +105,21 @@ class userInterface() {
             val shownTime = round(simulationTime*100)/100.0
             val shownAcceleration = round(body.acceleration*100)/100.0
 
+            history.addToSimple1DHistory(simulationTime,body.getDisplacement(simulationTime), body.getCurrentVelocity(simulationTime),body.acceleration)
+
             print("\r Object 1  |  t: ${"%.2f".format(shownTime)}  |  s: ${"%.2f".format(displacement)}  |  v: ${"%.2f".format(velocity)} |  a: ${"%.2f".format(shownAcceleration)}")
 
             if (simulationTime >= simulationDuration) {
                 break
             }
+
+            sleep(5)
         }
 
         println("")
         println("")
         println("Simulation Over")
+        println("")
+        history.exportHistory(1,1)
     }
 }
