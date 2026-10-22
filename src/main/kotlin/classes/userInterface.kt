@@ -1,8 +1,10 @@
 package classes
 
+// Import other classes
 import classes.body.interBody1D
 import classes.body.simpleBody1D
 import classes.body.simpleBody2D
+
 import java.lang.Math.toRadians
 import java.lang.Thread.sleep
 import kotlin.text.toDoubleOrNull
@@ -16,6 +18,7 @@ import kotlin.math.sqrt
 
 class userInterface() {
 
+    // Get initial parameters and start program
     fun start() {
         val dimension = getDimensionality()
 
@@ -24,6 +27,7 @@ class userInterface() {
         simulationSetup(dimension, complexity)
     }
 
+    // Used in getDoubleValue() to make sure input is valid
     fun safeReadLineDouble(): Double {
         while (true) {
             val line = readlnOrNull()
@@ -44,6 +48,7 @@ class userInterface() {
         }
     }
 
+    // To be used in all cases where a string input is needed
     fun safeReadLineString(): String {
         while (true) {
             val line = readlnOrNull()
@@ -57,14 +62,16 @@ class userInterface() {
         }
     }
 
+    // To be used in all cases where a double input is needed
     fun getDoubleValue(name: String): Double {
         println("Input the value of $name:")
         return safeReadLineDouble()
     }
 
+    // Get initial parameter of dimensionality
     fun getDimensionality(): Int {
         while (true) {
-            println("How many dimensions should the simulation utilize?   1 - 1D   2 - 2D [ Unavailable ]   3 - 3D [ Unavailable ]")
+            println("How many dimensions should the simulation utilize?   1 - 1D  |  2 - 2D  |  3 - 3D [ Unavailable ]")
             val input = readlnOrNull()
             when (input) {
                 "1" -> return 1
@@ -75,9 +82,10 @@ class userInterface() {
         }
     }
 
+    // Get initial parameter of complexity
     fun getComplexity(): Int {
         while (true) {
-            println("How complex should the simulation be?   Simple  |  Intermediate  |  Complex  [ Unavailable ]")
+            println("How complex should the simulation be?   Simple  |  Intermediate [ Available only for 1D ]  |  Complex  [ Unavailable ]")
             val input = readlnOrNull()
             when (input) {
                 "Simple" -> return 1
@@ -88,6 +96,7 @@ class userInterface() {
         }
     }
 
+    // Used to convert a vector in Polar form [magnitude, direction] into a vector in Cartesian form [X, Y]
     fun convertPolarToCartesian(magnitude: Double, direction: Double): List<Double> {
         val initialXY = mutableListOf<Double>()
 
@@ -101,6 +110,8 @@ class userInterface() {
         return initialXY
     }
 
+    // Takes in initial parameters [dimensionality, complexity], asks user for all needed parameters and creates a new object of class Body depending on initial parameters
+    // Then runs correct function to start the simulation
     fun simulationSetup(dimension: Int, complexity: Int) {
 
         if (complexity == 1 && dimension == 1) {
@@ -176,6 +187,7 @@ class userInterface() {
         }
     }
 
+    // Simulator for Simple 1D
     fun simulation1DSimple(body: simpleBody1D, simulationDuration: Double, lastTime: TimeSource.Monotonic.ValueTimeMark) {
         val timeSource = TimeSource.Monotonic
         var lastTime = lastTime
@@ -190,12 +202,12 @@ class userInterface() {
 
             simulationTime += dt
 
-            val displacement = round(body.getDisplacement(simulationTime)*100)/100.0
-            val velocity = round(body.getCurrentVelocity(simulationTime)*100)/100.0
-            val shownTime = round(simulationTime*100)/100.0
-            val shownAcceleration = round(body.acceleration*100)/100.0
+            val displacement = body.getDisplacement(simulationTime)
+            val velocity = body.getCurrentVelocity(simulationTime)
+            val shownTime = simulationTime
+            val shownAcceleration = body.acceleration
 
-            history.addToSimple1DHistory(simulationTime,body.getDisplacement(simulationTime), body.getCurrentVelocity(simulationTime),body.acceleration)
+            history.addToSimple1DHistory(simulationTime, displacement, velocity, shownAcceleration)
 
             print("\r Object 1  |  t: ${"%.2f".format(shownTime)}  |  s: ${"%.2f".format(displacement)}  |  v: ${"%.2f".format(velocity)} |  a: ${"%.2f".format(shownAcceleration)}")
 
@@ -214,6 +226,7 @@ class userInterface() {
         endOfProgram()
     }
 
+    // Simulator for Intermediate 1D
     fun simulation1DInter(body: interBody1D, simulationDuration: Double, lastTime: TimeSource.Monotonic.ValueTimeMark) {
         val timeSource = TimeSource.Monotonic
         var lastTime = lastTime
@@ -228,13 +241,13 @@ class userInterface() {
 
             simulationTime += dt
 
-            val displacement = round(body.getDisplacement(simulationTime)*100)/100.0
-            val velocity = round(body.getCurrentVelocity(simulationTime)*100)/100.0
-            val shownTime = round(simulationTime*100)/100.0
-            val shownAcceleration = round(body.getCurrentAcceleration(simulationTime)*100)/100.0
-            val shownJerk = round(body.jerk*100)/100.0
+            val displacement = body.getDisplacement(simulationTime)
+            val velocity = body.getCurrentVelocity(simulationTime)
+            val shownTime = simulationTime
+            val shownAcceleration = body.getCurrentAcceleration(simulationTime)
+            val shownJerk = body.jerk
 
-            history.addToInter1DHistory(simulationTime,body.getDisplacement(simulationTime), body.getCurrentVelocity(simulationTime),body.getCurrentAcceleration(simulationTime), body.jerk)
+            history.addToInter1DHistory(simulationTime, displacement, velocity, shownAcceleration, shownJerk)
 
             print("\r Object 1  |  t: ${"%.2f".format(shownTime)}  |  s: ${"%.2f".format(displacement)}  |  v: ${"%.2f".format(velocity)}  |  a: ${"%.2f".format(shownAcceleration)}  |  j: ${"%.2f".format(shownJerk)}")
 
@@ -253,6 +266,7 @@ class userInterface() {
         endOfProgram()
     }
 
+    // Simulator for Simple 2D
     fun simulation2DSimple(body: simpleBody2D, simulationDuration: Double, lastTime: TimeSource.Monotonic.ValueTimeMark) {
         val timeSource = TimeSource.Monotonic
         var lastTime = lastTime
@@ -267,15 +281,15 @@ class userInterface() {
 
             simulationTime += dt
 
-            val positionX = round(body.getCurrentPositionX(simulationTime)*100)/100.0
-            val positionY = round(body.getCurrentPositionY(simulationTime)*100)/100.0
-            val velocity = round(body.getCurrentCombinedVelocity(simulationTime)*100)/100.0
-            val velocityX = round(body.getCurrentVelocityX(simulationTime)*100)/100.0
-            val velocityY = round(body.getCurrentVelocityY(simulationTime)*100)/100.0
-            val time = round(simulationTime*100)/100.0
-            val gravity = round(body.gravity*100)/100.0
+            val positionX = body.getCurrentPositionX(simulationTime)
+            val positionY = body.getCurrentPositionY(simulationTime)
+            val velocity = body.getCurrentCombinedVelocity(simulationTime)
+            val velocityX = body.getCurrentVelocityX(simulationTime)
+            val velocityY = body.getCurrentVelocityY(simulationTime)
+            val time = simulationTime
+            val gravity = body.gravity
 
-            history.addToSimple2DHistory(simulationTime,body.getCurrentPositionX(simulationTime), body.getCurrentPositionY(simulationTime),body.getCurrentCombinedVelocity(simulationTime), body.getCurrentVelocityX(simulationTime), body.getCurrentVelocityY(simulationTime), body.gravity)
+            history.addToSimple2DHistory(simulationTime, positionX, positionY, velocity, velocityX, velocityY, gravity)
 
             print("\r Object 1  |  t: ${"%.2f".format(time)}  |  sX: ${"%.2f".format(positionX)}  |  sY: ${"%.2f".format(positionY)}  |  v: ${"%.2f".format(velocity)}  |  vX: ${"%.2f".format(velocityX)}  |  vY: ${"%.2f".format(velocityY)}  |  g: ${"%.2f".format(gravity)}")
 
@@ -294,6 +308,7 @@ class userInterface() {
         endOfProgram()
     }
 
+    // Pauses the program so user can see the created graph in the window, waits for user to press Enter and then closes the program
     fun endOfProgram() {
         println("Program execution finished. \n \nPress Enter when you would like to close this program.")
         readln()
