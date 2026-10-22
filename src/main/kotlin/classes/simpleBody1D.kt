@@ -9,7 +9,7 @@ class simpleBody1D(override val velocity: Double, override val acceleration: Dou
     val initialVelocity = velocity
 
     override fun getDisplacement(time: Double): Double {
-        return (initialVelocity * time) + (0.5 * acceleration * time.pow(2.0))
+        return initialDisplacement + (initialVelocity * time) + (0.5 * acceleration * time.pow(2.0))
     }
 
     override fun getCurrentVelocity(time: Double): Double {
