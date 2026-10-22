@@ -1,4 +1,4 @@
-package classes
+package classes.body
 
 import interfaces.Body
 

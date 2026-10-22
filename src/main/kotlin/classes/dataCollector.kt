@@ -33,6 +33,20 @@ class dataCollector {
         history.add(currentSnapshot)
     }
 
+    fun addToSimple2DHistory(time: Double, positionX: Double, positionY: Double, velocity: Double, velocityX: Double, velocityY: Double, gravity: Double) {
+        val currentSnapshot = mutableListOf<Double>()
+
+        currentSnapshot.add(time)
+        currentSnapshot.add(positionX)
+        currentSnapshot.add(positionY)
+        currentSnapshot.add(velocity)
+        currentSnapshot.add(velocityX)
+        currentSnapshot.add(velocityY)
+        currentSnapshot.add(gravity)
+
+        history.add(currentSnapshot)
+    }
+
     fun getNextAvailableFileName(baseName: String, extension: String): String {
         var index = 1
         var file: File
@@ -66,6 +80,19 @@ class dataCollector {
 
                 for (row in history) {
                     out.println("${row[0]},${row[1]},${row[2]},${row[3]},${row[4]}")
+                }
+            }
+
+            println("CSV results saved to ${file.absolutePath}")
+        } else if (dimensionality == 1 && complexity == 3) {
+            TODO("To be implemented")
+        } else if (dimensionality == 2 && complexity == 1) {
+
+            file.printWriter().use { out ->
+                out.println("time,position x,position y,combined velocity,velocity x,velocity y,gravity")
+
+                for (row in history) {
+                    out.println("${row[0]},${row[1]},${row[2]},${row[3]},${row[4]},${row[5]},${row[6]}")
                 }
             }
 
