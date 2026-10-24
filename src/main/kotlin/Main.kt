@@ -1,10 +1,14 @@
-import classes.userInterface
 
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-fun main() {
-    val UI = userInterface()
-
-    UI.start()
+fun main() = application {
+    // This creates an actual desktop window on your screen
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Kinematics Simulator"
+    ) {
+        // This calls the multi-page UI we made, putting it inside the window
+        KinematicsUI()
+    }
 }
