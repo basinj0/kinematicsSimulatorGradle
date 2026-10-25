@@ -17,9 +17,37 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.*
+import classes.body.InterBody1D
+import classes.body.SimpleBody1D
+import classes.body.SimpleBody2D
+import classes.Logic
+import interfaces.Body
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.lang.Math.toRadians
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.time.TimeSource
 
 enum class Step { TITLE, DIMENSION, COMPLEXITY, EXTRAPARAMETERS, INPUTS, RUNNING }
+
+fun String.convertToDouble(): Double {
+    return this.replace(",", ".").toDoubleOrNull() ?: 0.0
+}
+
+fun convertPolarToCartesian(magnitude: Double, direction: Double): List<Double> {
+    val initialXY = mutableListOf<Double>()
+
+    val directionInRadians = toRadians(direction)
+
+    val initialX = magnitude * (cos(directionInRadians))
+    val initialY = magnitude * (sin(directionInRadians))
+
+    initialXY.add(initialX)
+    initialXY.add(initialY)
+    return initialXY
+}
+
 @Composable
 fun KinematicsUI() {
     CompositionLocalProvider(
@@ -29,6 +57,8 @@ fun KinematicsUI() {
     ) {
         var currentStep by remember { mutableStateOf(Step.TITLE) }
         val focusRequester = remember { FocusRequester() }
+
+        val logic = Logic()
 
         LaunchedEffect(Unit) {
             focusRequester.requestFocus()
@@ -47,21 +77,23 @@ fun KinematicsUI() {
 
                 var chosenInputType by remember { mutableStateOf("") }
 
-                var initialDisplacementInput by remember { mutableStateOf("0.0") }
-                var initialVelocityInput by remember { mutableStateOf("0.0") }
-                var initialAccelerationInput by remember { mutableStateOf("0.0") }
-                var durationOfSimulationInput by remember { mutableStateOf("0.0") }
-                var initialJerkInput by remember { mutableStateOf("0.0") }
+                var initialDisplacementInput by remember { mutableStateOf("") }
+                var initialVelocityInput by remember { mutableStateOf("") }
+                var initialAccelerationInput by remember { mutableStateOf("") }
+                var durationOfSimulationInput by remember { mutableStateOf("") }
+                var initialJerkInput by remember { mutableStateOf("") }
 
-                var initialMagnitudeInput by remember { mutableStateOf("0.0") }
-                var initialAngleInput by remember { mutableStateOf("0.0") }
-                var initialXVelocityInput by remember { mutableStateOf("0.0") }
-                var initialYVelocityInput by remember { mutableStateOf("0.0") }
-                var initialXPositionInput by remember { mutableStateOf("0.0") }
-                var initialYPositionInput by remember { mutableStateOf("0.0") }
-                var initialGravityInput by remember { mutableStateOf("0.0") }
+                var initialMagnitudeInput by remember { mutableStateOf("") }
+                var initialAngleInput by remember { mutableStateOf("") }
+                var initialXVelocityInput by remember { mutableStateOf("") }
+                var initialYVelocityInput by remember { mutableStateOf("") }
+                var initialXPositionInput by remember { mutableStateOf("") }
+                var initialYPositionInput by remember { mutableStateOf("") }
+                var initialGravityInput by remember { mutableStateOf("") }
 
                 val scrollState = rememberScrollState()
+
+                var createdObject: Body = SimpleBody1D(0.0, 0.0, 0.0)
 
                 // 2. Center everything on the screen instead of top-left corner
                 Column(
@@ -154,7 +186,7 @@ fun KinematicsUI() {
                                                 )
                                             }
                                             Button(
-                                                onClick = { chosenDimension = 3; currentStep = Step.COMPLEXITY },
+                                                onClick = { TODO("Implement in Logic before enabling") },
                                                 shape = RoundedCornerShape(8.dp),
                                                 modifier = Modifier.padding(horizontal = 4.dp),
                                                 colors = ButtonDefaults.buttonColors(
@@ -185,7 +217,11 @@ fun KinematicsUI() {
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
                                         Button(
-                                            onClick = { chosenComplexity = 1; if (chosenDimension == 1) { currentStep = Step.INPUTS } else { currentStep = Step.EXTRAPARAMETERS } },
+                                            onClick = { chosenComplexity = 1; currentStep = if (chosenDimension == 1) {
+                                                Step.INPUTS
+                                            } else {
+                                                Step.EXTRAPARAMETERS
+                                            } },
                                             shape = RoundedCornerShape(8.dp),
                                             modifier = Modifier.padding(horizontal = 4.dp)
                                         ) {
@@ -198,7 +234,11 @@ fun KinematicsUI() {
                                             )
                                         }
                                         Button(
-                                            onClick = { chosenComplexity = 2; if (chosenDimension == 1) { currentStep = Step.INPUTS } else { currentStep = Step.EXTRAPARAMETERS } },
+                                            onClick = { chosenComplexity = 2; currentStep = if (chosenDimension == 1) {
+                                                Step.INPUTS
+                                            } else {
+                                                Step.EXTRAPARAMETERS
+                                            } },
                                             shape = RoundedCornerShape(8.dp),
                                             modifier = Modifier.padding(horizontal = 4.dp)
                                         ) {
@@ -211,7 +251,7 @@ fun KinematicsUI() {
                                             )
                                         }
                                         Button(
-                                            onClick = { chosenComplexity = 3; if (chosenDimension == 1) { currentStep = Step.INPUTS } else { currentStep = Step.EXTRAPARAMETERS } },
+                                            onClick = { TODO("Implement in Logic before enabling") },
                                             shape = RoundedCornerShape(8.dp),
                                             modifier = Modifier.padding(horizontal = 4.dp),
                                             colors = ButtonDefaults.buttonColors(
@@ -270,490 +310,774 @@ fun KinematicsUI() {
                                 }
 
                                 Step.INPUTS -> {
-                                    if (chosenDimension == 1 && chosenComplexity == 1) {
-                                        Text(
-                                            "Enter Initial Parameters",
-                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 30.sp
-                                        )
-
-                                        Spacer(modifier = Modifier.height(16.dp))
-
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .verticalScroll(scrollState),
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-
-                                            OutlinedTextField(
-                                                value = initialDisplacementInput,
-                                                onValueChange = { initialDisplacementInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Displacement (m)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
+                                    when (chosenDimension) {
+                                        1 if chosenComplexity == 1 -> {
+                                            Text(
+                                                "Enter Initial Parameters",
+                                                style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 30.sp
                                             )
 
-                                            Spacer(modifier = Modifier.height(12.dp))
+                                            Spacer(modifier = Modifier.height(16.dp))
 
-                                            OutlinedTextField(
-                                                value = initialVelocityInput,
-                                                onValueChange = { initialVelocityInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Velocity (m/s)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = initialAccelerationInput,
-                                                onValueChange = { initialAccelerationInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Acceleration (m/s^2)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = durationOfSimulationInput,
-                                                onValueChange = { durationOfSimulationInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Duration of Simulation (s)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(24.dp))
-
-                                            Button(
-                                                onClick = { currentStep = Step.RUNNING },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(8.dp),
-                                                colors = ButtonDefaults.buttonColors(
-                                                    containerColor = CustomDarkColorScheme.primary,
-                                                )
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .verticalScroll(scrollState),
+                                                horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
-                                                Text(
-                                                    "Run Simulation",
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 20.sp,
-                                                    textAlign = TextAlign.Center,
-                                                    fontFamily = JetBrainsMono
+
+                                                OutlinedTextField(
+                                                    value = initialDisplacementInput,
+                                                    onValueChange = { initialDisplacementInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Displacement (m)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
                                                 )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialVelocityInput,
+                                                    onValueChange = { initialVelocityInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Velocity (m/s)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialAccelerationInput,
+                                                    onValueChange = { initialAccelerationInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Acceleration (m/s^2)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = durationOfSimulationInput,
+                                                    onValueChange = { durationOfSimulationInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Duration of Simulation (s)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(24.dp))
+
+                                                Button(
+                                                    onClick = {
+                                                        createdObject = SimpleBody1D(
+                                                            initialVelocityInput.convertToDouble(),
+                                                            initialAccelerationInput.convertToDouble(),
+                                                            initialDisplacementInput.convertToDouble()
+                                                        )
+                                                        currentStep = Step.RUNNING
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = CustomDarkColorScheme.primary,
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        "Run Simulation",
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 20.sp,
+                                                        textAlign = TextAlign.Center,
+                                                        fontFamily = JetBrainsMono
+                                                    )
+                                                }
                                             }
                                         }
-                                    } else if (chosenDimension == 1 && chosenComplexity == 2) {
-                                        Text(
-                                            "Enter Initial Parameters",
-                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 30.sp
-                                        )
-
-                                        Spacer(modifier = Modifier.height(16.dp))
-
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .verticalScroll(scrollState),
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-
-                                            OutlinedTextField(
-                                                value = initialDisplacementInput,
-                                                onValueChange = { initialDisplacementInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Displacement (m)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
+                                        1 if chosenComplexity == 2 -> {
+                                            Text(
+                                                "Enter Initial Parameters",
+                                                style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 30.sp
                                             )
 
-                                            Spacer(modifier = Modifier.height(12.dp))
+                                            Spacer(modifier = Modifier.height(16.dp))
 
-                                            OutlinedTextField(
-                                                value = initialVelocityInput,
-                                                onValueChange = { initialVelocityInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Velocity (m/s)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = initialAccelerationInput,
-                                                onValueChange = { initialAccelerationInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Acceleration (m/s^2)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = initialJerkInput,
-                                                onValueChange = { initialJerkInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Jerk (m/s^3)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = durationOfSimulationInput,
-                                                onValueChange = { durationOfSimulationInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Duration of Simulation (s)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(24.dp))
-
-                                            Button(
-                                                onClick = { currentStep = Step.RUNNING },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(8.dp),
-                                                colors = ButtonDefaults.buttonColors(
-                                                    containerColor = CustomDarkColorScheme.primary,
-                                                )
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .verticalScroll(scrollState),
+                                                horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
-                                                Text(
-                                                    "Run Simulation",
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 20.sp,
-                                                    textAlign = TextAlign.Center,
-                                                    fontFamily = JetBrainsMono
+
+                                                OutlinedTextField(
+                                                    value = initialDisplacementInput,
+                                                    onValueChange = { initialDisplacementInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Displacement (m)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
                                                 )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialVelocityInput,
+                                                    onValueChange = { initialVelocityInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Velocity (m/s)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialAccelerationInput,
+                                                    onValueChange = { initialAccelerationInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Acceleration (m/s^2)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialJerkInput,
+                                                    onValueChange = { initialJerkInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Jerk (m/s^3)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = durationOfSimulationInput,
+                                                    onValueChange = { durationOfSimulationInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Duration of Simulation (s)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(24.dp))
+
+                                                Button(
+                                                    onClick = {
+                                                        createdObject = InterBody1D(
+                                                            initialVelocityInput.convertToDouble(),
+                                                            initialAccelerationInput.convertToDouble(),
+                                                            initialDisplacementInput.convertToDouble(),
+                                                            initialJerkInput.convertToDouble()
+                                                        )
+                                                        currentStep = Step.RUNNING
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = CustomDarkColorScheme.primary,
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        "Run Simulation",
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 20.sp,
+                                                        textAlign = TextAlign.Center,
+                                                        fontFamily = JetBrainsMono
+                                                    )
+                                                }
                                             }
                                         }
-                                    } else if (chosenDimension == 2 && chosenComplexity == 1 && chosenInputType == "Polar") {
-                                        Text(
-                                            "Enter Initial Parameters",
-                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 30.sp
-                                        )
-
-                                        Spacer(modifier = Modifier.height(16.dp))
-
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .verticalScroll(scrollState),
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-
-                                            OutlinedTextField(
-                                                value = initialAngleInput,
-                                                onValueChange = { initialAngleInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Angle (°)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
+                                        2 if chosenComplexity == 1 && chosenInputType == "Polar" -> {
+                                            Text(
+                                                "Enter Initial Parameters",
+                                                style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 30.sp
                                             )
 
-                                            Spacer(modifier = Modifier.height(12.dp))
+                                            Spacer(modifier = Modifier.height(16.dp))
 
-                                            OutlinedTextField(
-                                                value = initialMagnitudeInput,
-                                                onValueChange = { initialMagnitudeInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Magnitude (m/s)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = initialGravityInput,
-                                                onValueChange = { initialGravityInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Gravity (m/s^2) [Negative is down]",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = initialAccelerationInput,
-                                                onValueChange = { initialAccelerationInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial X Position (m)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = initialYPositionInput,
-                                                onValueChange = { initialYPositionInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Y Position (m)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = durationOfSimulationInput,
-                                                onValueChange = { durationOfSimulationInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Duration of Simulation (s)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(24.dp))
-
-                                            Button(
-                                                onClick = { currentStep = Step.RUNNING },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(8.dp),
-                                                colors = ButtonDefaults.buttonColors(
-                                                    containerColor = CustomDarkColorScheme.primary,
-                                                )
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .verticalScroll(scrollState),
+                                                horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
-                                                Text(
-                                                    "Run Simulation",
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 20.sp,
-                                                    textAlign = TextAlign.Center,
-                                                    fontFamily = JetBrainsMono
+
+                                                OutlinedTextField(
+                                                    value = initialAngleInput,
+                                                    onValueChange = { initialAngleInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Angle (°)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
                                                 )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialMagnitudeInput,
+                                                    onValueChange = { initialMagnitudeInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Magnitude (m/s)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialGravityInput,
+                                                    onValueChange = { initialGravityInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Gravity (m/s^2) [Negative is down]",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialAccelerationInput,
+                                                    onValueChange = { initialAccelerationInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial X Position (m)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialYPositionInput,
+                                                    onValueChange = { initialYPositionInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Y Position (m)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = durationOfSimulationInput,
+                                                    onValueChange = { durationOfSimulationInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Duration of Simulation (s)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(24.dp))
+
+                                                Button(
+                                                    onClick = {
+                                                        val velocityXY = convertPolarToCartesian(
+                                                            initialMagnitudeInput.convertToDouble(),
+                                                            initialAngleInput.convertToDouble()
+                                                        )
+
+                                                        createdObject = SimpleBody2D(
+                                                            velocityXY[0],
+                                                            velocityXY[1],
+                                                            initialGravityInput.convertToDouble(),
+                                                            initialXPositionInput.convertToDouble(),
+                                                            initialYPositionInput.convertToDouble(),
+                                                            0.0,
+                                                            0.0
+                                                        )
+
+                                                        currentStep = Step.RUNNING
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = CustomDarkColorScheme.primary,
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        "Run Simulation",
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 20.sp,
+                                                        textAlign = TextAlign.Center,
+                                                        fontFamily = JetBrainsMono
+                                                    )
+                                                }
                                             }
                                         }
-                                    } else if (chosenDimension == 2 && chosenComplexity == 1 && chosenInputType == "Cartesian") {
-                                        Text(
-                                            "Enter Initial Parameters",
-                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 30.sp
-                                        )
-
-                                        Spacer(modifier = Modifier.height(16.dp))
-
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .verticalScroll(scrollState),
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-
-                                            OutlinedTextField(
-                                                value = initialXVelocityInput,
-                                                onValueChange = { initialXVelocityInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial X Velocity (m/s)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
+                                        2 if chosenComplexity == 1 && chosenInputType == "Cartesian" -> {
+                                            Text(
+                                                "Enter Initial Parameters",
+                                                style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 30.sp
                                             )
 
-                                            Spacer(modifier = Modifier.height(12.dp))
+                                            Spacer(modifier = Modifier.height(16.dp))
 
-                                            OutlinedTextField(
-                                                value = initialYVelocityInput,
-                                                onValueChange = { initialYVelocityInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Y Velocity (m/s)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = initialGravityInput,
-                                                onValueChange = { initialGravityInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Gravity (m/s^2) [Negative is down]",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = initialXPositionInput,
-                                                onValueChange = { initialXPositionInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial X Position (m)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = initialYPositionInput,
-                                                onValueChange = { initialYPositionInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Initial Y Position (m)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(12.dp))
-
-                                            OutlinedTextField(
-                                                value = durationOfSimulationInput,
-                                                onValueChange = { durationOfSimulationInput = it },
-                                                label = {
-                                                    Text(
-                                                        "Duration of Simulation (s)",
-                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
-                                                        fontWeight = FontWeight.Light,
-                                                        fontSize = 12.sp
-                                                    )
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                            )
-
-                                            Spacer(modifier = Modifier.height(24.dp))
-
-                                            Button(
-                                                onClick = { currentStep = Step.RUNNING },
-                                                modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(8.dp),
-                                                colors = ButtonDefaults.buttonColors(
-                                                    containerColor = CustomDarkColorScheme.primary,
-                                                )
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .verticalScroll(scrollState),
+                                                horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
-                                                Text(
-                                                    "Run Simulation",
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 20.sp,
-                                                    textAlign = TextAlign.Center,
-                                                    fontFamily = JetBrainsMono
+
+                                                OutlinedTextField(
+                                                    value = initialXVelocityInput,
+                                                    onValueChange = { initialXVelocityInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial X Velocity (m/s)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
                                                 )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialYVelocityInput,
+                                                    onValueChange = { initialYVelocityInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Y Velocity (m/s)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialGravityInput,
+                                                    onValueChange = { initialGravityInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Gravity (m/s^2) [Negative is down]",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialXPositionInput,
+                                                    onValueChange = { initialXPositionInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial X Position (m)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = initialYPositionInput,
+                                                    onValueChange = { initialYPositionInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Initial Y Position (m)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(12.dp))
+
+                                                OutlinedTextField(
+                                                    value = durationOfSimulationInput,
+                                                    onValueChange = { durationOfSimulationInput = it },
+                                                    label = {
+                                                        Text(
+                                                            "Duration of Simulation (s)",
+                                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                            fontWeight = FontWeight.Light,
+                                                            fontSize = 12.sp
+                                                        )
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+
+                                                Spacer(modifier = Modifier.height(24.dp))
+
+                                                Button(
+                                                    onClick = {
+                                                        createdObject = SimpleBody2D(
+                                                            initialXVelocityInput.convertToDouble(),
+                                                            initialYVelocityInput.convertToDouble(),
+                                                            initialGravityInput.convertToDouble(),
+                                                            initialXPositionInput.convertToDouble(),
+                                                            initialYPositionInput.convertToDouble(),
+                                                            0.0,
+                                                            0.0
+                                                        )
+                                                        currentStep = Step.RUNNING
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = CustomDarkColorScheme.primary,
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        "Run Simulation",
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 20.sp,
+                                                        textAlign = TextAlign.Center,
+                                                        fontFamily = JetBrainsMono
+                                                    )
+                                                }
                                             }
                                         }
                                     }
                                 }
 
                                 Step.RUNNING -> {
-                                    Text("Simulation Running...", style = MaterialTheme.typography.titleMedium)
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text("Dimensions: $chosenDimension-D  |  Complexity: Level $chosenComplexity")
-                                    Text("Velocity: $initialVelocityInput m/s  |  Angle: ${initialAngleInput}°")
 
-                                    Spacer(modifier = Modifier.height(24.dp))
-                                    OutlinedButton(onClick = { currentStep = Step.DIMENSION }) {
-                                        Text("Reset Simulator")
+                                    when (chosenDimension) {
+                                        1 if chosenComplexity == 1 -> {
+
+                                            var liveTime by remember { mutableStateOf(0.0) }
+                                            var liveDisplacement by remember { mutableStateOf(0.0) }
+                                            var liveVelocity by remember { mutableStateOf(0.0) }
+                                            var liveAcceleration by remember { mutableStateOf(0.0) }
+
+                                            LaunchedEffect(Unit) {
+                                                val body = createdObject
+                                                val timeSource = TimeSource.Monotonic
+                                                val startTime = timeSource.markNow()
+
+                                                withContext(Dispatchers.Default) {
+                                                    logic.simulation1DSimple(
+                                                        body = body as SimpleBody1D,
+                                                        simulationDuration = durationOfSimulationInput.convertToDouble(),
+                                                        lastTime = startTime
+                                                    ) { time, disp, vel, acc ->
+                                                        liveTime = time
+                                                        liveDisplacement = disp
+                                                        liveVelocity = vel
+                                                        liveAcceleration = acc
+                                                    }
+                                                }
+                                            }
+
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    "Simulation Running...",
+                                                    style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 30.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(16.dp))
+
+                                                Text(
+                                                    "Time: ${String.format("%.2f", liveTime)} s",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Displacement: ${String.format("%.3f", liveDisplacement)} m",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Velocity: ${String.format("%.3f", liveVelocity)} m/s",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Acceleration: ${String.format("%.3f", liveAcceleration)} m/s^2",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+
+                                                Spacer(modifier = Modifier.height(24.dp))
+
+                                                OutlinedButton(onClick = { currentStep = Step.DIMENSION }) {
+                                                    Text("Reset Simulator")
+                                                }
+                                            }
+
+                                        }
+                                        1 if chosenComplexity == 2 -> {
+
+                                            var liveTime by remember { mutableStateOf(0.0) }
+                                            var liveDisplacement by remember { mutableStateOf(0.0) }
+                                            var liveVelocity by remember { mutableStateOf(0.0) }
+                                            var liveAcceleration by remember { mutableStateOf(0.0) }
+                                            var liveJerk by remember { mutableStateOf(0.0) }
+
+                                            LaunchedEffect(Unit) {
+                                                val body = createdObject
+                                                val timeSource = TimeSource.Monotonic
+                                                val startTime = timeSource.markNow()
+
+                                                withContext(Dispatchers.Default) {
+                                                    logic.simulation1DInter(
+                                                        body = body as InterBody1D,
+                                                        simulationDuration = durationOfSimulationInput.convertToDouble(),
+                                                        lastTime = startTime
+                                                    ) { time, disp, vel, acc, jerk ->
+                                                        liveTime = time
+                                                        liveDisplacement = disp
+                                                        liveVelocity = vel
+                                                        liveAcceleration = acc
+                                                        liveJerk = jerk
+                                                    }
+                                                }
+                                            }
+
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    "Simulation Running...",
+                                                    style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 30.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(16.dp))
+
+                                                Text(
+                                                    "Time: ${String.format("%.2f", liveTime)} s",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Displacement: ${String.format("%.3f", liveDisplacement)} m",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Velocity: ${String.format("%.3f", liveVelocity)} m/s",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Acceleration: ${String.format("%.3f", liveAcceleration)} m/s^2",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Jerk: ${String.format("%.3f", liveJerk)} m/s^3",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+
+                                                Spacer(modifier = Modifier.height(24.dp))
+
+                                                OutlinedButton(onClick = { currentStep = Step.DIMENSION }) {
+                                                    Text("Reset Simulator")
+                                                }
+                                            }
+                                        }
+                                        2 if chosenComplexity == 1 -> {
+
+                                            var liveTime by remember { mutableStateOf(0.0) }
+                                            var liveXPosition by remember { mutableStateOf(0.0) }
+                                            var liveYPosition by remember { mutableStateOf(0.0) }
+                                            var liveXVelocity by remember { mutableStateOf(0.0) }
+                                            var liveYVelocity by remember { mutableStateOf(0.0) }
+                                            var liveVelocity by remember { mutableStateOf(0.0) }
+                                            var liveGravity by remember { mutableStateOf(0.0) }
+
+                                            LaunchedEffect(Unit) {
+
+                                                val body = createdObject
+                                                val timeSource = TimeSource.Monotonic
+                                                val startTime = timeSource.markNow()
+
+                                                withContext(Dispatchers.Default) {
+                                                    logic.simulation2DSimple(
+                                                        body = body as SimpleBody2D,
+                                                        simulationDuration = durationOfSimulationInput.convertToDouble(),
+                                                        lastTime = startTime
+                                                    ) { time, xPos, yPos, xVel, yVel, vel, grav ->
+                                                        liveTime = time
+                                                        liveXPosition = xPos
+                                                        liveYPosition = yPos
+                                                        liveXVelocity = xVel
+                                                        liveYVelocity = yVel
+                                                        liveVelocity = vel
+                                                        liveGravity = grav
+                                                    }
+                                                }
+                                            }
+
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    "Simulation Running...",
+                                                    style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 30.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(16.dp))
+
+                                                // These will now update live 200 times a second (matching your 5ms sleep)
+                                                Text(
+                                                    "Time: ${String.format("%.2f", liveTime)} s",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "X Position: ${String.format("%.3f", liveXPosition)} m",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Y Position: ${String.format("%.3f", liveYPosition)} m",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "X Velocity: ${String.format("%.3f", liveXVelocity)} m/s",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Y Velocity: ${String.format("%.3f", liveYVelocity)} m/s",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Velocity: ${String.format("%.3f", liveVelocity)} m/s",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+                                                Spacer(modifier = Modifier.height(12.dp))
+                                                Text(
+                                                    "Gravity: ${String.format("%.3f", liveGravity)} m/s^2",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp
+                                                )
+
+                                                Spacer(modifier = Modifier.height(24.dp))
+
+                                                OutlinedButton(onClick = { currentStep = Step.DIMENSION }) {
+                                                    Text("Reset Simulator")
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

@@ -3,8 +3,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.material3.Typography
 
 // 1. Define your custom colors
 val CustomDarkColorScheme = darkColorScheme(
@@ -26,8 +24,3 @@ val JetBrainsMono = FontFamily(
     Font(resource = "font/JetBrainsMono-Medium.ttf", weight = FontWeight.Medium)
 )
 
-val CustomTypography = Typography(
-    bodyLarge = TextStyle(fontFamily = JetBrainsMono),
-    titleMedium = TextStyle(fontFamily = JetBrainsMono),
-    headlineLarge = TextStyle(fontFamily = JetBrainsMono)
-)

@@ -6,7 +6,7 @@ import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.markers.SeriesMarkers
 import java.io.File
 
-class dataCollector {
+class DataCollector {
 
     val history = mutableListOf<List<Double>>()
 
@@ -62,41 +62,46 @@ class dataCollector {
     fun exportHistory(dimensionality: Int, complexity: Int) {
         val file = File(getNextAvailableFileName("simulationResults","csv"))
 
-        if (dimensionality == 1 && complexity == 1) {
+        when (dimensionality) {
+            1 if complexity == 1 -> {
 
-            file.printWriter().use { out ->
-                out.println("time,displacement,velocity,acceleration")
+                file.printWriter().use { out ->
+                    out.println("time,displacement,velocity,acceleration")
 
-                for (row in history) {
-                    out.println("${row[0]},${row[1]},${row[2]},${row[3]}")
+                    for (row in history) {
+                        out.println("${row[0]},${row[1]},${row[2]},${row[3]}")
+                    }
                 }
+
+                println("CSV results saved to ${file.absolutePath}")
             }
+            1 if complexity == 2 -> {
 
-            println("CSV results saved to ${file.absolutePath}")
-        } else if (dimensionality == 1 && complexity == 2) {
+                file.printWriter().use { out ->
+                    out.println("time,displacement,velocity,acceleration,jerk")
 
-            file.printWriter().use { out ->
-                out.println("time,displacement,velocity,acceleration,jerk")
-
-                for (row in history) {
-                    out.println("${row[0]},${row[1]},${row[2]},${row[3]},${row[4]}")
+                    for (row in history) {
+                        out.println("${row[0]},${row[1]},${row[2]},${row[3]},${row[4]}")
+                    }
                 }
+
+                println("CSV results saved to ${file.absolutePath}")
             }
+            1 if complexity == 3 -> {
+                TODO("To be implemented")
+            }
+            2 if complexity == 1 -> {
 
-            println("CSV results saved to ${file.absolutePath}")
-        } else if (dimensionality == 1 && complexity == 3) {
-            TODO("To be implemented")
-        } else if (dimensionality == 2 && complexity == 1) {
+                file.printWriter().use { out ->
+                    out.println("time,position x,position y,combined velocity,velocity x,velocity y,gravity")
 
-            file.printWriter().use { out ->
-                out.println("time,position x,position y,combined velocity,velocity x,velocity y,gravity")
-
-                for (row in history) {
-                    out.println("${row[0]},${row[1]},${row[2]},${row[3]},${row[4]},${row[5]},${row[6]}")
+                    for (row in history) {
+                        out.println("${row[0]},${row[1]},${row[2]},${row[3]},${row[4]},${row[5]},${row[6]}")
+                    }
                 }
-            }
 
-            println("CSV results saved to ${file.absolutePath}")
+                println("CSV results saved to ${file.absolutePath}")
+            }
         }
     }
 
@@ -130,6 +135,8 @@ class dataCollector {
         BitmapEncoder.saveBitmap(chart, getNextAvailableFileName("simulation_graph", "png"), BitmapEncoder.BitmapFormat.PNG)
         println("Graph saved successfully as simulation_graph.png!")
 
-        SwingWrapper(chart).displayChart()
+        Thread {
+            SwingWrapper(chart).displayChart()
+        }.start()
     }
 }

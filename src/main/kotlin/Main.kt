@@ -8,7 +8,7 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "Kinematics Simulator"
     ) {
-        // This calls the multi-page UI we made, putting it inside the window
+        // This calls the multipage UI we made, putting it inside the window
         KinematicsUI()
     }
 }

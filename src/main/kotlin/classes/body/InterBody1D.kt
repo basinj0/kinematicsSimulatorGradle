@@ -4,7 +4,7 @@ import interfaces.Body
 
 import kotlin.math.pow
 
-class interBody1D(override val velocity: Double, override val acceleration: Double, override val initialDisplacement: Double, val jerk: Double) : Body {
+class InterBody1D(override val velocity: Double, override val acceleration: Double, override val initialDisplacement: Double, val jerk: Double) : Body {
 
     val initialVelocity = velocity
     val initialAcceleration = acceleration
