@@ -135,7 +135,8 @@ class DataCollector {
         BitmapEncoder.saveBitmap(chart, fileName, BitmapEncoder.BitmapFormat.PNG)
 
         Thread {
-            SwingWrapper(chart).displayChart()
+            val frame = SwingWrapper(chart).displayChart()
+            frame.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE)
         }.start()
 
         return "Graph saved successfully as $fileName!"
