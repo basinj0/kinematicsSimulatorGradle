@@ -5,14 +5,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 
 val CustomDarkColorScheme = darkColorScheme(
-    primary = Color(0xFFFC0050),      // Your main accent color (e.g., Purple)
-    secondary = Color(0xFFC4003E),    // Secondary highlight color
+    primary = Color(0xFFFC0050),
+    secondary = Color(0xFFC4003E),
     tertiary = Color(0xFF63001D),
-    background = Color(0xFF000000),   // Main window background
-    surface = Color(0xFF470017),      // Card and container background
-    onPrimary = Color.White,          // Text color drawn ON top of primary buttons
-    onBackground = Color(0xFFE0E0E0), // Default body text color
-    onSurface = Color(0xFFE0E0E0)     // Text color drawn ON top of cards/surface
+    background = Color(0xFF000000),
+    surface = Color(0xFF470017),
+    onPrimary = Color.White,
+    onBackground = Color(0xFFE0E0E0),
+    onSurface = Color(0xFFE0E0E0)
 )
 
 val JetBrainsMono = FontFamily(

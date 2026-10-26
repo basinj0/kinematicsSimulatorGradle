@@ -1,5 +1,6 @@
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Column
@@ -35,8 +36,13 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.time.TimeSource
-
-enum class Step { TITLE, DIMENSION, COMPLEXITY, EXTRAPARAMETERS, INPUTS, RUNNING, RESULTS, CREDITS, HISTORY }
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.window.Window
 
 fun String.convertToDouble(): Double {
     return this.replace(",", ".").toDoubleOrNull() ?: 0.0
@@ -56,26 +62,25 @@ fun convertPolarToCartesian(magnitude: Double, direction: Double): List<Double> 
 }
 
 @Composable
-fun KinematicsUI() {
+fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
     CompositionLocalProvider(
         LocalTextStyle provides LocalTextStyle.current.copy(
             fontFamily = JetBrainsMono
         )
     ) {
-        var currentStep by remember { mutableStateOf(Step.TITLE) }
-        val focusRequester = remember { FocusRequester() }
 
         val logic = Logic()
-
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
 
         MaterialTheme(
             colorScheme = CustomDarkColorScheme
         ) {
+            val focusRequester = remember { FocusRequester() }
+
             Surface(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .focusRequester(focusRequester)
+                    .focusable(),
                 color = MaterialTheme.colorScheme.background
             ) {
                 var chosenDimension by remember { mutableStateOf(2) }
@@ -101,7 +106,7 @@ fun KinematicsUI() {
 
                 var createdObject: Body = SimpleBody1D(0.0, 0.0, 0.0)
 
-                var latestHistory : DataCollector? = null
+                var latestHistory: DataCollector? = null
 
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxSize()
@@ -142,7 +147,8 @@ fun KinematicsUI() {
                                     Step.TITLE -> {
                                         Box() {
                                             Card(
-                                                modifier = Modifier.align(Alignment.TopEnd).fillMaxWidth(0.345f).fillMaxHeight(),
+                                                modifier = Modifier.align(Alignment.TopEnd).fillMaxWidth(0.345f)
+                                                    .fillMaxHeight(),
                                                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                                                 colors = CardDefaults.cardColors(
                                                     containerColor = CustomDarkColorScheme.tertiary,
@@ -183,7 +189,8 @@ fun KinematicsUI() {
                                             }
 
                                             Card(
-                                                modifier = Modifier.align(Alignment.TopStart).fillMaxWidth(0.345f).fillMaxHeight(),
+                                                modifier = Modifier.align(Alignment.TopStart).fillMaxWidth(0.345f)
+                                                    .fillMaxHeight(),
                                                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                                                 colors = CardDefaults.cardColors(
                                                     containerColor = CustomDarkColorScheme.tertiary,
@@ -200,7 +207,7 @@ fun KinematicsUI() {
                                                         modifier = Modifier.fillMaxHeight().fillMaxWidth()
                                                     ) {
                                                         Button(
-                                                            onClick = { currentStep = Step.CREDITS },
+                                                            onClick = { onStepChange(Step.CREDITS) },
                                                             shape = RoundedCornerShape(8.dp * scalar),
                                                             colors = ButtonDefaults.buttonColors(
                                                                 containerColor = CustomDarkColorScheme.secondary
@@ -226,7 +233,7 @@ fun KinematicsUI() {
                                                 modifier = Modifier.fillMaxWidth().fillMaxHeight()
                                             ) {
                                                 Button(
-                                                    onClick = { currentStep = Step.DIMENSION },
+                                                    onClick = { onStepChange(Step.DIMENSION) },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 4.dp * scalar),
                                                 ) {
@@ -236,7 +243,7 @@ fun KinematicsUI() {
                                                         fontSize = (50 * scalar).sp,
                                                         textAlign = TextAlign.Center,
                                                         fontFamily = JetBrainsMono,
-                                                        modifier = Modifier.padding(horizontal = 16.dp * scalar).padding(16.dp * scalar)
+                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar).padding(4.dp * scalar)
                                                     )
                                                 }
                                             }
@@ -250,12 +257,18 @@ fun KinematicsUI() {
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 40.sp * scalar
                                         )
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center,
+                                            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                                        ) {
                                             Row(
                                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                                             ) {
                                                 Button(
-                                                    onClick = { chosenDimension = 1; currentStep = Step.COMPLEXITY },
+                                                    onClick = {
+                                                        chosenDimension = 1; onStepChange(Step.COMPLEXITY)
+                                                    },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 8.dp * scalar)
                                                 ) {
@@ -265,11 +278,14 @@ fun KinematicsUI() {
                                                         fontSize = 36.sp * scalar,
                                                         textAlign = TextAlign.Center,
                                                         fontFamily = JetBrainsMono,
-                                                        modifier = Modifier.padding(horizontal = 8.dp * scalar).padding(4.dp * scalar)
+                                                        modifier = Modifier.padding(horizontal = 8.dp * scalar)
+                                                            .padding(4.dp * scalar)
                                                     )
                                                 }
                                                 Button(
-                                                    onClick = { chosenDimension = 2; currentStep = Step.COMPLEXITY },
+                                                    onClick = {
+                                                        chosenDimension = 2; onStepChange(Step.COMPLEXITY)
+                                                    },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 8.dp * scalar)
                                                 ) {
@@ -279,7 +295,8 @@ fun KinematicsUI() {
                                                         fontSize = 36.sp * scalar,
                                                         textAlign = TextAlign.Center,
                                                         fontFamily = JetBrainsMono,
-                                                        modifier = Modifier.padding(horizontal = 8.dp * scalar).padding(4.dp * scalar)
+                                                        modifier = Modifier.padding(horizontal = 8.dp * scalar)
+                                                            .padding(4.dp * scalar)
                                                     )
                                                 }
                                                 Button(
@@ -296,7 +313,8 @@ fun KinematicsUI() {
                                                         fontSize = 36.sp * scalar,
                                                         textAlign = TextAlign.Center,
                                                         fontFamily = JetBrainsMono,
-                                                        modifier = Modifier.padding(horizontal = 8.dp * scalar).padding(4.dp * scalar)
+                                                        modifier = Modifier.padding(horizontal = 8.dp * scalar)
+                                                            .padding(4.dp * scalar)
                                                     )
                                                 }
                                             }
@@ -310,17 +328,22 @@ fun KinematicsUI() {
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 40.sp * scalar
                                         )
-                                        Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                                        Column(
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                                        ) {
                                             Row(
                                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                                             ) {
                                                 Button(
                                                     onClick = {
-                                                        chosenComplexity = 1; currentStep = if (chosenDimension == 1) {
-                                                        Step.INPUTS
-                                                    } else {
-                                                        Step.EXTRAPARAMETERS
-                                                    }
+                                                        chosenComplexity = 1
+                                                        if (chosenDimension == 1) {
+                                                            onStepChange(Step.INPUTS)
+                                                        } else {
+                                                            onStepChange(Step.EXTRAPARAMETERS)
+                                                        }
                                                     },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 4.dp * scalar)
@@ -331,16 +354,18 @@ fun KinematicsUI() {
                                                         fontSize = 30.sp * scalar,
                                                         textAlign = TextAlign.Center,
                                                         fontFamily = JetBrainsMono,
-                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar).padding(4.dp * scalar)
+                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar)
+                                                            .padding(4.dp * scalar)
                                                     )
                                                 }
                                                 Button(
                                                     onClick = {
-                                                        chosenComplexity = 2; currentStep = if (chosenDimension == 1) {
-                                                        Step.INPUTS
-                                                    } else {
-                                                        Step.EXTRAPARAMETERS
-                                                    }
+                                                        chosenComplexity = 2
+                                                        if (chosenDimension == 1) {
+                                                            onStepChange(Step.INPUTS)
+                                                        } else {
+                                                            onStepChange(Step.EXTRAPARAMETERS)
+                                                        }
                                                     },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 4.dp * scalar)
@@ -351,7 +376,8 @@ fun KinematicsUI() {
                                                         fontSize = 30.sp * scalar,
                                                         textAlign = TextAlign.Center,
                                                         fontFamily = JetBrainsMono,
-                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar).padding(4.dp * scalar)
+                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar)
+                                                            .padding(4.dp * scalar)
                                                     )
                                                 }
                                                 Button(
@@ -368,7 +394,8 @@ fun KinematicsUI() {
                                                         fontSize = 30.sp * scalar,
                                                         textAlign = TextAlign.Center,
                                                         fontFamily = JetBrainsMono,
-                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar).padding(4.dp * scalar)
+                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar)
+                                                            .padding(4.dp * scalar)
                                                     )
                                                 }
                                             }
@@ -392,7 +419,9 @@ fun KinematicsUI() {
                                                 horizontalArrangement = Arrangement.spacedBy(12.dp * scalar),
                                             ) {
                                                 Button(
-                                                    onClick = { chosenInputType = "Polar"; currentStep = Step.INPUTS },
+                                                    onClick = {
+                                                        chosenInputType = "Polar"; onStepChange(Step.INPUTS)
+                                                    },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 4.dp * scalar)
                                                 ) {
@@ -402,12 +431,13 @@ fun KinematicsUI() {
                                                         fontSize = 30.sp * scalar,
                                                         textAlign = TextAlign.Center,
                                                         fontFamily = JetBrainsMono,
-                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar).padding(4.dp * scalar)
+                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar)
+                                                            .padding(4.dp * scalar)
                                                     )
                                                 }
                                                 Button(
                                                     onClick = {
-                                                        chosenInputType = "Cartesian"; currentStep = Step.INPUTS
+                                                        chosenInputType = "Cartesian"; onStepChange(Step.INPUTS)
                                                     },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 4.dp * scalar)
@@ -418,7 +448,8 @@ fun KinematicsUI() {
                                                         fontSize = 30.sp * scalar,
                                                         textAlign = TextAlign.Center,
                                                         fontFamily = JetBrainsMono,
-                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar).padding(4.dp * scalar)
+                                                        modifier = Modifier.padding(horizontal = 4.dp * scalar)
+                                                            .padding(4.dp * scalar)
                                                     )
                                                 }
                                             }
@@ -543,7 +574,7 @@ fun KinematicsUI() {
                                                                 initialAccelerationInput.convertToDouble(),
                                                                 initialDisplacementInput.convertToDouble()
                                                             )
-                                                            currentStep = Step.RUNNING
+                                                            onStepChange(Step.RUNNING)
                                                         },
                                                         modifier = Modifier.fillMaxWidth(),
                                                         shape = RoundedCornerShape(8.dp * scalar),
@@ -702,7 +733,7 @@ fun KinematicsUI() {
                                                                 initialDisplacementInput.convertToDouble(),
                                                                 initialJerkInput.convertToDouble()
                                                             )
-                                                            currentStep = Step.RUNNING
+                                                            onStepChange(Step.RUNNING)
                                                         },
                                                         modifier = Modifier.fillMaxWidth(),
                                                         shape = RoundedCornerShape(8.dp * scalar),
@@ -893,7 +924,7 @@ fun KinematicsUI() {
                                                                 0.0
                                                             )
 
-                                                            currentStep = Step.RUNNING
+                                                            onStepChange(Step.RUNNING)
                                                         },
                                                         modifier = Modifier.fillMaxWidth(),
                                                         shape = RoundedCornerShape(8.dp * scalar),
@@ -1078,7 +1109,7 @@ fun KinematicsUI() {
                                                                 0.0,
                                                                 0.0
                                                             )
-                                                            currentStep = Step.RUNNING
+                                                            onStepChange(Step.RUNNING)
                                                         },
                                                         modifier = Modifier.fillMaxWidth(),
                                                         shape = RoundedCornerShape(8.dp * scalar),
@@ -1143,7 +1174,8 @@ fun KinematicsUI() {
                                                     Spacer(modifier = Modifier.height(16.dp))
 
                                                     Column(
-                                                        modifier = Modifier.fillMaxWidth().weight(1.0f).verticalScroll(scrollState),
+                                                        modifier = Modifier.fillMaxWidth().weight(1.0f)
+                                                            .verticalScroll(scrollState),
                                                         horizontalAlignment = Alignment.CenterHorizontally,
                                                         verticalArrangement = Arrangement.Center
                                                     ) {
@@ -1186,7 +1218,7 @@ fun KinematicsUI() {
 
                                                     if (liveTime >= durationOfSimulationInput.convertToDouble()) {
                                                         OutlinedButton(
-                                                            onClick = { currentStep = Step.RESULTS },
+                                                            onClick = { onStepChange(Step.RESULTS) },
                                                             border = BorderStroke(1.dp * scalar, Color(0xFFC4003E)),
                                                             shape = RoundedCornerShape(8.dp * scalar),
                                                             modifier = Modifier.padding(horizontal = 4.dp * scalar),
@@ -1258,7 +1290,8 @@ fun KinematicsUI() {
                                                     Spacer(modifier = Modifier.height(24.dp))
 
                                                     Column(
-                                                        modifier = Modifier.fillMaxWidth().weight(1.0f).verticalScroll(scrollState),
+                                                        modifier = Modifier.fillMaxWidth().weight(1.0f)
+                                                            .verticalScroll(scrollState),
                                                         horizontalAlignment = Alignment.CenterHorizontally,
                                                         verticalArrangement = Arrangement.Center
                                                     ) {
@@ -1307,7 +1340,7 @@ fun KinematicsUI() {
 
                                                     if (liveTime >= durationOfSimulationInput.convertToDouble()) {
                                                         OutlinedButton(
-                                                            onClick = { currentStep = Step.RESULTS },
+                                                            onClick = { onStepChange(Step.RESULTS) },
                                                             border = BorderStroke(1.dp * scalar, Color(0xFFC4003E)),
                                                             shape = RoundedCornerShape(8.dp * scalar),
                                                             modifier = Modifier.padding(horizontal = 4.dp * scalar)
@@ -1383,7 +1416,8 @@ fun KinematicsUI() {
                                                     Spacer(modifier = Modifier.height(24.dp))
 
                                                     Column(
-                                                        modifier = Modifier.fillMaxWidth().weight(1.0f).verticalScroll(scrollState),
+                                                        modifier = Modifier.fillMaxWidth().weight(1.0f)
+                                                            .verticalScroll(scrollState),
                                                         horizontalAlignment = Alignment.CenterHorizontally,
                                                         verticalArrangement = Arrangement.Center
                                                     ) {
@@ -1406,13 +1440,23 @@ fun KinematicsUI() {
                                                         )
                                                         Spacer(modifier = Modifier.height(12.dp * scalar))
                                                         Text(
-                                                            "X Velocity: ${String.format("%.3f", liveXVelocity)} m/s",
+                                                            "X Velocity: ${
+                                                                String.format(
+                                                                    "%.3f",
+                                                                    liveXVelocity
+                                                                )
+                                                            } m/s",
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp * scalar
                                                         )
                                                         Spacer(modifier = Modifier.height(12.dp * scalar))
                                                         Text(
-                                                            "Y Velocity: ${String.format("%.3f", liveYVelocity)} m/s",
+                                                            "Y Velocity: ${
+                                                                String.format(
+                                                                    "%.3f",
+                                                                    liveYVelocity
+                                                                )
+                                                            } m/s",
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp * scalar
                                                         )
@@ -1434,7 +1478,7 @@ fun KinematicsUI() {
 
                                                     if (liveTime >= durationOfSimulationInput.convertToDouble()) {
                                                         OutlinedButton(
-                                                            onClick = { currentStep = Step.RESULTS },
+                                                            onClick = { onStepChange(Step.RESULTS) },
                                                             border = BorderStroke(1.dp * scalar, Color(0xFFC4003E)),
                                                             shape = RoundedCornerShape(8.dp * scalar),
                                                             modifier = Modifier.padding(horizontal = 4.dp * scalar)
@@ -1546,7 +1590,7 @@ fun KinematicsUI() {
 
                                             Button(
                                                 shape = RoundedCornerShape(8.dp * scalar),
-                                                onClick = { currentStep = Step.TITLE },
+                                                onClick = { onStepChange(Step.TITLE) },
                                                 colors = ButtonDefaults.buttonColors(
                                                     containerColor = CustomDarkColorScheme.secondary
                                                 )
@@ -1563,6 +1607,7 @@ fun KinematicsUI() {
                                     }
 
                                     Step.CREDITS -> {
+
                                         Column(
                                             modifier = Modifier.fillMaxWidth().fillMaxHeight(),
                                             verticalArrangement = Arrangement.Center,
@@ -1571,7 +1616,7 @@ fun KinematicsUI() {
                                             Text(
                                                 "kinematicsSimulatorV0300A\n\n\n" +
                                                         "Coded by Mark B\n\n" +
-                                                        "Coded using Kotlin, KMP and Material\n\n" +
+                                                        "Coded using Kotlin, KMP and MD3\n\n" +
                                                         "[ Kotlin and KMP by JetBrains s.r.o. ]\n" +
                                                         "[ Material Design 3 by Google LLC ]",
                                                 fontFamily = JetBrainsMono,
@@ -1583,6 +1628,7 @@ fun KinematicsUI() {
                                             )
                                         }
                                     }
+
                                     Step.HISTORY -> TODO()
                                 }
                             }
@@ -1590,6 +1636,11 @@ fun KinematicsUI() {
                     }
                 }
             }
+
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
         }
+
     }
 }
