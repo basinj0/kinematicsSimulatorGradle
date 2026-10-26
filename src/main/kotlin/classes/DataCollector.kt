@@ -59,7 +59,7 @@ class DataCollector {
         return file.absolutePath
     }
 
-    fun exportHistory(dimensionality: Int, complexity: Int) {
+    fun exportHistory(dimensionality: Int, complexity: Int): String {
         val file = File(getNextAvailableFileName("simulationResults","csv"))
 
         when (dimensionality) {
@@ -73,7 +73,7 @@ class DataCollector {
                     }
                 }
 
-                println("CSV results saved to ${file.absolutePath}")
+                return "CSV results saved to ${file.absolutePath}"
             }
             1 if complexity == 2 -> {
 
@@ -85,7 +85,7 @@ class DataCollector {
                     }
                 }
 
-                println("CSV results saved to ${file.absolutePath}")
+                return "CSV results saved to ${file.absolutePath}"
             }
             1 if complexity == 3 -> {
                 TODO("To be implemented")
@@ -100,9 +100,10 @@ class DataCollector {
                     }
                 }
 
-                println("CSV results saved to ${file.absolutePath}")
+                return "CSV results saved to ${file.absolutePath}"
             }
         }
+        return ""
     }
 
     fun pullVariable(variableIndex: Int): List<Double> {
@@ -115,9 +116,8 @@ class DataCollector {
         return output
     }
 
-    fun generateGraph(chartTitle: String, xAxisName: String, yAxisName: String, xAxis: List<Double>, yAxis: List<Double>) {
+    fun generateGraph(chartTitle: String, xAxisName: String, yAxisName: String, xAxis: List<Double>?, yAxis: List<Double>?): String {
 
-        // Setup the chart
         val chart = XYChartBuilder()
             .width(1280)
             .height(720)
@@ -126,17 +126,18 @@ class DataCollector {
             .title(chartTitle)
             .build()
 
-        // Add data
         val series = chart.addSeries(yAxisName, xAxis, yAxis)
 
-        // Remove dots
         series.marker = SeriesMarkers.NONE
 
-        BitmapEncoder.saveBitmap(chart, getNextAvailableFileName("simulation_graph", "png"), BitmapEncoder.BitmapFormat.PNG)
-        println("Graph saved successfully as simulation_graph.png!")
+        val fileName = getNextAvailableFileName("simulation_graph", "png")
+
+        BitmapEncoder.saveBitmap(chart, fileName, BitmapEncoder.BitmapFormat.PNG)
 
         Thread {
             SwingWrapper(chart).displayChart()
         }.start()
+
+        return "Graph saved successfully as $fileName!"
     }
 }

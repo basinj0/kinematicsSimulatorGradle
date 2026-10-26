@@ -35,3 +35,7 @@ application {
 tasks.withType<org.jetbrains.compose.reload.gradle.ComposeHotRun>().configureEach {
     mainClass.set("MainKt")
 }
+
+tasks.withType<AbstractCopyTask> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

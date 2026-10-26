@@ -1,7 +1,6 @@
 
 package classes
 
-// Import other classes
 import classes.body.InterBody1D
 import classes.body.SimpleBody1D
 import classes.body.SimpleBody2D
@@ -11,12 +10,12 @@ import kotlin.time.TimeSource
 class Logic {
 
     // Simulator for Simple 1D
-    fun simulation1DSimple(
+    fun simulation1DSimple (
         body: SimpleBody1D,
         simulationDuration: Double,
         lastTime: TimeSource.Monotonic.ValueTimeMark,
-        onTick: (time: Double, displacement: Double, velocity: Double, acceleration: Double) -> Unit // 👈 Add this callback
-    ) {
+        onTick: (time: Double, displacement: Double, velocity: Double, acceleration: Double) -> Unit
+    ): DataCollector {
         val timeSource = TimeSource.Monotonic
         var lastTime = lastTime
         var simulationTime = 0.0
@@ -35,7 +34,6 @@ class Logic {
 
             history.addToSimple1DHistory(simulationTime, displacement, velocity, shownAcceleration)
 
-            // 👇 Send live data back to whatever is listening (your UI!)
             onTick(simulationTime, displacement, velocity, shownAcceleration)
 
             print(
@@ -55,18 +53,11 @@ class Logic {
             )
 
             if (simulationTime >= simulationDuration) {
-                break
+                return history
             }
 
             Thread.sleep(5)
         }
-
-        println("\n \n Simulation Over \n")
-        history.exportHistory(1, 1)
-        println("")
-        history.generateGraph("Displacement / Time", "Time", "Displacement", history.pullVariable(0), history.pullVariable(1))
-        println("")
-
     }
 
 
@@ -76,7 +67,7 @@ class Logic {
         simulationDuration: Double,
         lastTime: TimeSource.Monotonic.ValueTimeMark,
         onTick: (time: Double, displacement: Double, velocity: Double, acceleration: Double, jerk: Double) -> Unit
-    ) {
+    ): DataCollector {
         val timeSource = TimeSource.Monotonic
         var lastTime = lastTime
         var simulationTime = 0.0
@@ -96,7 +87,6 @@ class Logic {
 
             history.addToInter1DHistory(simulationTime, displacement, velocity, shownAcceleration, shownJerk)
 
-            // 👇 Send live data back to whatever is listening (your UI!)
             onTick(simulationTime, displacement, velocity, shownAcceleration, shownJerk)
 
             print(
@@ -116,17 +106,11 @@ class Logic {
             )
 
             if (simulationTime >= simulationDuration) {
-                break
+                return history
             }
 
             Thread.sleep(5)
         }
-
-        println("\n \n Simulation Over \n")
-        history.exportHistory(1, 2)
-        println("")
-        history.generateGraph("Displacement / Time", "Time", "Displacement", history.pullVariable(0), history.pullVariable(1))
-        println("")
     }
 
     // Simulator for Simple 2D
@@ -135,7 +119,7 @@ class Logic {
         simulationDuration: Double,
         lastTime: TimeSource.Monotonic.ValueTimeMark,
         onTick: (time: Double, xPosition: Double, yPosition: Double, xVelocity: Double, yVelocity: Double, velocity: Double, gravity: Double) -> Unit
-    ) {
+    ): DataCollector {
         val timeSource = TimeSource.Monotonic
         var lastTime = lastTime
         var simulationTime = 0.0
@@ -157,7 +141,6 @@ class Logic {
 
             history.addToSimple2DHistory(simulationTime, positionX, positionY, velocity, velocityX, velocityY, gravity)
 
-            // 👇 Send live data back to whatever is listening (your UI!)
             onTick(simulationTime, positionX, positionY, velocityX, velocityY, velocity, gravity)
 
             print(
@@ -177,22 +160,10 @@ class Logic {
             )
 
             if (simulationTime >= simulationDuration) {
-                break
+                return history
             }
 
             Thread.sleep(5)
         }
-
-        println("\n \n Simulation Over \n")
-        history.exportHistory(2, 1)
-        println("")
-        history.generateGraph(
-            "Position Y / Position X",
-            "Position X",
-            "Position Y",
-            history.pullVariable(1),
-            history.pullVariable(2)
-                )
-        println("")
     }
 }
