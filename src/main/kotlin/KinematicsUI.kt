@@ -36,7 +36,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.time.TimeSource
 
-enum class Step { TITLE, DIMENSION, COMPLEXITY, EXTRAPARAMETERS, INPUTS, RUNNING, RESULTS }
+enum class Step { TITLE, DIMENSION, COMPLEXITY, EXTRAPARAMETERS, INPUTS, RUNNING, RESULTS, CREDITS, HISTORY }
 
 fun String.convertToDouble(): Double {
     return this.replace(",", ".").toDoubleOrNull() ?: 0.0
@@ -140,22 +140,105 @@ fun KinematicsUI() {
                             ) {
                                 when (currentStep) {
                                     Step.TITLE -> {
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center,
-                                            modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
-                                            Button(
-                                                onClick = { currentStep = Step.DIMENSION },
-                                                shape = RoundedCornerShape(8.dp * scalar),
-                                                modifier = Modifier.padding(horizontal = 4.dp * scalar),
-                                            ) {
-                                                Text(
-                                                    text = "Start",
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = (50 * scalar).sp,
-                                                    textAlign = TextAlign.Center,
-                                                    fontFamily = JetBrainsMono,
-                                                    modifier = Modifier.padding(horizontal = 16.dp * scalar).padding(16.dp * scalar)
+                                        Box() {
+                                            Card(
+                                                modifier = Modifier.align(Alignment.TopEnd).fillMaxWidth(0.345f).fillMaxHeight(),
+                                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                                                colors = CardDefaults.cardColors(
+                                                    containerColor = CustomDarkColorScheme.tertiary,
+                                                    contentColor = CustomDarkColorScheme.onSurface
                                                 )
+                                            ) {
+                                                Column(
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                    modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                ) {
+                                                    Column(
+                                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                                        verticalArrangement = Arrangement.Center
+                                                    ) {
+                                                        Spacer(modifier = Modifier.height(12.dp))
+                                                        Text(
+                                                            modifier = Modifier.padding(horizontal = 16.dp * scalar)
+                                                                .padding(vertical = 8.dp * scalar),
+                                                            text = "/// Patch Notes ///\n/// FR3A ///",
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontSize = (24 * scalar).sp,
+                                                            textAlign = TextAlign.Center,
+                                                            fontFamily = JetBrainsMono,
+                                                            lineHeight = 30.sp * scalar
+                                                        )
+                                                        Spacer(Modifier.height(16.dp))
+                                                        Text(
+                                                            modifier = Modifier.padding(horizontal = 16.dp * scalar)
+                                                                .padding(vertical = 8.dp * scalar),
+                                                            text = "This is a test line that is long enough to a be on multiple lines",
+                                                            fontWeight = FontWeight.Normal,
+                                                            fontSize = (20 * scalar).sp,
+                                                            textAlign = TextAlign.Center,
+                                                            fontFamily = JetBrainsMono
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                            Card(
+                                                modifier = Modifier.align(Alignment.TopStart).fillMaxWidth(0.345f).fillMaxHeight(),
+                                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                                                colors = CardDefaults.cardColors(
+                                                    containerColor = CustomDarkColorScheme.tertiary,
+                                                    contentColor = CustomDarkColorScheme.onSurface
+                                                )
+                                            ) {
+                                                Column(
+                                                    horizontalAlignment = Alignment.Start,
+                                                    modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                ) {
+                                                    Column(
+                                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                                        verticalArrangement = Arrangement.Center,
+                                                        modifier = Modifier.fillMaxHeight().fillMaxWidth()
+                                                    ) {
+                                                        Button(
+                                                            onClick = { currentStep = Step.CREDITS },
+                                                            shape = RoundedCornerShape(8.dp * scalar),
+                                                            colors = ButtonDefaults.buttonColors(
+                                                                containerColor = CustomDarkColorScheme.secondary
+                                                            )
+                                                        ) {
+                                                            Text(
+                                                                text = "Credits",
+                                                                fontWeight = FontWeight.Normal,
+                                                                fontSize = (24 * scalar).sp,
+                                                                textAlign = TextAlign.Center,
+                                                                fontFamily = JetBrainsMono,
+                                                                modifier = Modifier.padding(horizontal = 16.dp * scalar)
+                                                                    .padding(16.dp * scalar)
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.Center,
+                                                modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                                            ) {
+                                                Button(
+                                                    onClick = { currentStep = Step.DIMENSION },
+                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                    modifier = Modifier.padding(horizontal = 4.dp * scalar),
+                                                ) {
+                                                    Text(
+                                                        text = "Start",
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = (50 * scalar).sp,
+                                                        textAlign = TextAlign.Center,
+                                                        fontFamily = JetBrainsMono,
+                                                        modifier = Modifier.padding(horizontal = 16.dp * scalar).padding(16.dp * scalar)
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -1458,8 +1541,49 @@ fun KinematicsUI() {
                                                     fontSize = 30.sp * scalar
                                                 )
                                             }
+
+                                            Spacer(modifier = Modifier.height(24.dp))
+
+                                            Button(
+                                                shape = RoundedCornerShape(8.dp * scalar),
+                                                onClick = { currentStep = Step.TITLE },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = CustomDarkColorScheme.secondary
+                                                )
+                                            ) {
+                                                Text(
+                                                    "Reset",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontWeight = FontWeight.Normal,
+                                                    fontSize = 24.sp * scalar,
+                                                    color = Color(0xFF000000)
+                                                )
+                                            }
                                         }
                                     }
+
+                                    Step.CREDITS -> {
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                "kinematicsSimulatorV0300A\n\n\n" +
+                                                        "Coded by Mark B\n\n" +
+                                                        "Coded using Kotlin, KMP and Material\n\n" +
+                                                        "[ Kotlin and KMP by JetBrains s.r.o. ]\n" +
+                                                        "[ Material Design 3 by Google LLC ]",
+                                                fontFamily = JetBrainsMono,
+                                                fontWeight = FontWeight.Normal,
+                                                fontSize = 24.sp * scalar,
+                                                lineHeight = 28.sp * scalar,
+                                                textAlign = TextAlign.Center,
+                                                color = CustomDarkColorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                    Step.HISTORY -> TODO()
                                 }
                             }
                         }

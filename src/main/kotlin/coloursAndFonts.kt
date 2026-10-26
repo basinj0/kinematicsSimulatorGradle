@@ -7,6 +7,7 @@ import androidx.compose.ui.text.platform.Font
 val CustomDarkColorScheme = darkColorScheme(
     primary = Color(0xFFFC0050),      // Your main accent color (e.g., Purple)
     secondary = Color(0xFFC4003E),    // Secondary highlight color
+    tertiary = Color(0xFF63001D),
     background = Color(0xFF000000),   // Main window background
     surface = Color(0xFF470017),      // Card and container background
     onPrimary = Color.White,          // Text color drawn ON top of primary buttons
