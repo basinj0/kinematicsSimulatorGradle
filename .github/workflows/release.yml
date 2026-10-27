@@ -38,6 +38,12 @@ jobs:
       - name: Build Native Distribution
         run: ./gradlew packageDistributionForCurrentOS
 
+      - name: Print jpackage error log on failure
+        if: failure()
+        run: |
+          echo "--- JPACKAGE ERROR LOG ---"
+          cat build/compose/logs/createDistributable/*-err.txt || true
+
       - name: Prepare and Rename Artifacts
         shell: bash
         run: |
