@@ -54,8 +54,8 @@ class DataCollector {
         var file: File
 
         do {
-            file = File("$baseName$index.$extension")
             index++
+            file = File("$baseName$index.$extension")
         } while (file.exists())
 
         return index

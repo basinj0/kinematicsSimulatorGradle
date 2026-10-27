@@ -122,9 +122,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
 
                 val scrollState = rememberScrollState()
 
-                var createdObject: Body = SimpleBody1D(0.0, 0.0, 0.0)
-
-                var latestHistory: DataCollector? = null
+                var createdObject by remember { mutableStateOf<Body>(SimpleBody1D(0.0, 0.0, 0.0)) }
+                var latestHistory by remember { mutableStateOf<DataCollector?>(null) }
 
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxSize()

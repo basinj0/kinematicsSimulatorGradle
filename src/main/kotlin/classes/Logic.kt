@@ -21,7 +21,7 @@ class Logic {
         var simulationTime = 0.0
         val history = DataCollector()
 
-
+        history.addToSimple1DHistory(simulationDuration, body.getDisplacement(0.0), body.getCurrentVelocity(0.0), body.acceleration)
 
         while (true) {
             val elapsed = lastTime.elapsedNow()
