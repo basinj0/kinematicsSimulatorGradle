@@ -14,8 +14,6 @@ jobs:
         include:
           - os: windows-latest
             platform-name: windows
-          - os: macos-latest
-            platform-name: macos
           - os: ubuntu-latest
             platform-name: linux
 
@@ -52,9 +50,6 @@ jobs:
           if [ "${{ matrix.platform-name }}" == "windows" ]; then
             cp build/compose/binaries/main/exe/*.exe staging/KinematicsSimulator-Windows-x64.exe || true
             cp build/compose/binaries/main/msi/*.msi staging/KinematicsSimulator-Windows-x64.msi || true
-          
-          elif [ "${{ matrix.platform-name }}" == "macos" ]; then
-            cp build/compose/binaries/main/dmg/*.dmg staging/KinematicsSimulator-macOS-x64.dmg || true
           
           elif [ "${{ matrix.platform-name }}" == "linux" ]; then
             cp build/compose/binaries/main/deb/*.deb staging/KinematicsSimulator-Linux-x64.deb || true
