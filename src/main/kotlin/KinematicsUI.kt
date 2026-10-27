@@ -36,6 +36,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.time.TimeSource
 import androidx.compose.ui.focus.focusRequester
+import classes.SimulationRecords
 
 fun String.convertToDouble(): Double {
     return this.replace(",", ".").toDoubleOrNull() ?: 0.0
@@ -124,6 +125,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
 
                 var createdObject by remember { mutableStateOf<Body>(SimpleBody1D(0.0, 0.0, 0.0)) }
                 var latestHistory by remember { mutableStateOf<DataCollector?>(null) }
+                var records = SimulationRecords()
+                var listOfRecords by remember { mutableStateOf<List<List<String>>?>(null) }
 
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxSize()
@@ -252,6 +255,26 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         ) {
                                                             Text(
                                                                 text = "Settings",
+                                                                fontWeight = FontWeight.Normal,
+                                                                fontSize = (24 * scalar).sp,
+                                                                textAlign = TextAlign.Center,
+                                                                fontFamily = JetBrainsMono,
+                                                                modifier = Modifier.padding(horizontal = 16.dp * scalar)
+                                                                    .padding(16.dp * scalar)
+                                                            )
+                                                        }
+
+                                                        Spacer(Modifier.height(24.dp * scalar))
+
+                                                        Button(
+                                                            onClick = { onStepChange(Step.HISTORY) },
+                                                            shape = RoundedCornerShape(8.dp * scalar),
+                                                            colors = ButtonDefaults.buttonColors(
+                                                                containerColor = mainColourScheme.secondary
+                                                            )
+                                                        ) {
+                                                            Text(
+                                                                text = "History",
                                                                 fontWeight = FontWeight.Normal,
                                                                 fontSize = (24 * scalar).sp,
                                                                 textAlign = TextAlign.Center,
@@ -1666,7 +1689,88 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                         }
                                     }
 
-                                    Step.HISTORY -> TODO()
+                                    Step.HISTORY -> {
+
+                                        listOfRecords = records.pullAllSimulationBasicInfos()
+
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                "History",
+                                                style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 40.sp * scalar,
+                                                color = mainColourScheme.primary,
+                                                textAlign = TextAlign.Center
+                                            )
+
+                                            Spacer(modifier = Modifier.height(24.dp))
+
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth().fillMaxHeight().verticalScroll(scrollState)
+                                            ) {
+                                                if (listOfRecords != null) {
+                                                    for (record in listOfRecords) {
+                                                        val index = record[0]
+                                                        val dimension = record[1]
+                                                        val complexity = record[2]
+                                                        val timestamp = record[3]
+
+                                                        Card(
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            colors = CardDefaults.cardColors(
+                                                                containerColor = mainColourScheme.tertiary,
+                                                                contentColor = Color.White
+                                                            )
+                                                        ) {
+                                                            Box(
+                                                                modifier = Modifier.fillMaxWidth()
+                                                                    .padding(16.dp * scalar)
+                                                                    .padding(horizontal = 16.dp * scalar)
+                                                            ) {
+                                                                Row(
+                                                                    modifier = Modifier.fillMaxWidth(),
+                                                                    verticalAlignment = Alignment.CenterVertically
+                                                                ) {
+                                                                    Text(
+                                                                        "#$index",
+                                                                        style = MaterialTheme.typography.titleLarge.copy(
+                                                                            fontFamily = JetBrainsMono
+                                                                        ),
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 40.sp * scalar
+                                                                    )
+                                                                    Spacer(modifier = Modifier.width(28.dp * scalar))
+                                                                    Column() {
+                                                                        Text(
+                                                                            "${dimension}D  |  Complexity $complexity",
+                                                                            style = MaterialTheme.typography.titleLarge.copy(
+                                                                                fontFamily = JetBrainsMono
+                                                                            ),
+                                                                            fontWeight = FontWeight.Normal,
+                                                                            fontSize = 24.sp * scalar
+                                                                        )
+                                                                        Spacer(modifier = Modifier.width(8.dp * scalar))
+                                                                        Text(
+                                                                            "$timestamp",
+                                                                            style = MaterialTheme.typography.titleLarge.copy(
+                                                                                fontFamily = JetBrainsMono
+                                                                            ),
+                                                                            fontWeight = FontWeight.Normal,
+                                                                            fontSize = 24.sp * scalar
+                                                                        )
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        Spacer(modifier = Modifier.height(16.dp * scalar))
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
 
                                     Step.SETTINGS -> {
                                         Row(

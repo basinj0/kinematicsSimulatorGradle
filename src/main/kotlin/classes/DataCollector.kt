@@ -50,7 +50,7 @@ class DataCollector {
     }
 
     fun getNextAvailableFileName(baseName: String, extension: String): Int {
-        var index = 1
+        var index = 0
         var file: File
 
         do {
@@ -66,9 +66,9 @@ class DataCollector {
 
         val file = File("simulationResults$index.csv")
 
-        val currentTime = LocalDateTime.now()
+        val currentTime = "${LocalDateTime.now()}"
 
-        val initialLine = "$index,$dimensionality,$complexity,$currentTime"
+        val initialLine = "$index,$dimensionality,$complexity,${currentTime.substringBefore(".")}"
 
         when (dimensionality) {
             1 if complexity == 1 -> {
