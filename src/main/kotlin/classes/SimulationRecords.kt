@@ -5,6 +5,15 @@ import java.io.File
 
 class SimulationRecords {
 
+    fun resolveSafeFile(fileName: String): File {
+        val documentsDir = File(System.getProperty("user.home"), "Documents")
+        val appFolder = File(documentsDir, "KinematicsSimulator")
+        if (!appFolder.exists()) {
+            appFolder.mkdirs()
+        }
+        return File(appFolder, fileName)
+    }
+
     fun getBasicInfoFromCSV(file: File): List<String>? {
 
         val firstLine = file.useLines { lines ->
@@ -17,7 +26,8 @@ class SimulationRecords {
     }
 
     fun pullAllSimulationBasicInfos(): List<List<String>>? {
-        val directory = File(".")
+        val documentsDir = File(System.getProperty("user.home"), "Documents")
+        val directory = File(documentsDir, "KinematicsSimulator")
 
         val csvFiles = directory.listFiles { file ->
             file.isFile &&
@@ -39,7 +49,7 @@ class SimulationRecords {
     }
 
     fun pullNamesOfParameters(index: Int): List<String>? {
-        val file = File("simulationResults$index.csv")
+        val file = resolveSafeFile("simulationResults$index.csv")
 
         val output = file.useLines { lines ->
             lines.elementAtOrNull(1)?.split(",")
@@ -49,7 +59,7 @@ class SimulationRecords {
     }
 
     fun pullInitialSimulationParameters(index: Int): List<String>? {
-        val file = File("simulationResults$index.csv")
+        val file = resolveSafeFile("simulationResults$index.csv")
 
         val output = file.useLines { lines ->
             lines.elementAtOrNull(2)?.split(",")
@@ -59,7 +69,7 @@ class SimulationRecords {
     }
 
     fun convertCSVIntoHistory(index: Int): DataCollector {
-        val file = File("simulationResults$index.csv")
+        val file = resolveSafeFile("simulationResults$index.csv")
 
         val data = file.useLines { lines ->
             lines.drop(2)

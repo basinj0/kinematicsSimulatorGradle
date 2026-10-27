@@ -200,7 +200,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         Text(
                                                             modifier = Modifier.padding(horizontal = 16.dp * scalar)
                                                                 .padding(vertical = 8.dp * scalar),
-                                                            text = "This is a test line that is long enough to a be on multiple lines",
+                                                            text = "Added UI \n A UI has been created and implemented with previous logic including running simulations and generating graphs. \n\n" +
+                                                                    "Added Settings & History \n A page for a history of simulations that have been run and settings to change the theme of the app.",
                                                             fontWeight = FontWeight.Normal,
                                                             fontSize = (20 * scalar).sp,
                                                             textAlign = TextAlign.Center,
@@ -1595,20 +1596,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                     if (liveTime >= durationOfSimulationInput.convertToDouble()) {
                                                         OutlinedButton(
                                                             onClick = { onStepChange(Step.RESULTS) },
-                                                            border = BorderStroke(1.dp * scalar, Color(0xFFC4003E)),
-                                                            shape = RoundedCornerShape(8.dp * scalar),
-                                                            modifier = Modifier.padding(horizontal = 4.dp * scalar)
-                                                        ) {
-                                                            Text(
-                                                                "Results",
-                                                                fontFamily = JetBrainsMono,
-                                                                fontSize = 30.sp * scalar
-                                                            )
-                                                        }
-                                                    } else {
-                                                        OutlinedButton(
-                                                            onClick = { },
-                                                            border = BorderStroke(1.dp * scalar, Color(0x40C4003E)),
+                                                            border = BorderStroke(1.dp * scalar, mainColourScheme.secondary),
                                                             shape = RoundedCornerShape(8.dp * scalar),
                                                             modifier = Modifier.padding(horizontal = 4.dp * scalar)
                                                         ) {
@@ -1616,7 +1604,21 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                 "Results",
                                                                 fontFamily = JetBrainsMono,
                                                                 fontSize = 30.sp * scalar,
-                                                                color = Color(0x40FFFFFF)
+                                                                color = mainColourScheme.onSurface
+                                                            )
+                                                        }
+                                                    } else {
+                                                        OutlinedButton(
+                                                            onClick = { },
+                                                            border = BorderStroke(1.dp * scalar, mainColourScheme.secondary.copy(alpha = 0.3f)),
+                                                            shape = RoundedCornerShape(8.dp * scalar),
+                                                            modifier = Modifier.padding(horizontal = 4.dp * scalar)
+                                                        ) {
+                                                            Text(
+                                                                "Results",
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = 30.sp * scalar,
+                                                                color = mainColourScheme.onSurface.copy(alpha = 0.3f)
                                                             )
                                                         }
                                                     }
@@ -1782,7 +1784,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                             modifier = Modifier.fillMaxWidth(),
                                                             colors = ButtonDefaults.buttonColors(
                                                                 containerColor = mainColourScheme.tertiary,
-                                                                contentColor = Color.White
+                                                                contentColor = mainColourScheme.onSurface
                                                             ),
                                                             shape = RoundedCornerShape(12.dp * scalar)
                                                         ) {

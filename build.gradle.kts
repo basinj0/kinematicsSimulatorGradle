@@ -1,9 +1,11 @@
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+
 plugins {
     kotlin("jvm") version "2.4.10"
-    application
-    id("org.jetbrains.compose") version "1.10.0" // Or the latest stable Compose version
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0" // Required for Compose compiler
-    id("org.jetbrains.compose.hot-reload") version "1.0.0-rc02" // The hot reload plugin
+    // application
+    id("org.jetbrains.compose") version "1.10.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("org.jetbrains.compose.hot-reload") version "1.0.0-rc02"
 }
 
 group = "org.example"
@@ -28,9 +30,9 @@ tasks.test {
     useJUnitPlatform()
 }
 
-application {
-    mainClass.set("MainKt")
-}
+//application {
+//    mainClass.set("MainKt")
+//}
 
 tasks.withType<org.jetbrains.compose.reload.gradle.ComposeHotRun>().configureEach {
     mainClass.set("MainKt")
@@ -38,4 +40,23 @@ tasks.withType<org.jetbrains.compose.reload.gradle.ComposeHotRun>().configureEac
 
 tasks.withType<AbstractCopyTask> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+compose.desktop {
+    application {
+        mainClass = "MainKt"
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Exe, TargetFormat.Msi)
+            packageName = "KinematicsSimulator"
+            packageVersion = "0.3.0"
+
+            windows {
+                dirChooser = true
+                menu = true
+                shortcut = true
+                menuGroup = "Tools"
+            }
+        }
+    }
 }

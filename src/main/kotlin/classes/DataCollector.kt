@@ -11,6 +11,15 @@ class DataCollector {
 
     var history = mutableListOf<List<Double>>()
 
+    fun resolveSafeFile(fileName: String): File {
+        val documentsDir = File(System.getProperty("user.home"), "Documents")
+        val appFolder = File(documentsDir, "KinematicsSimulator")
+        if (!appFolder.exists()) {
+            appFolder.mkdirs()
+        }
+        return File(appFolder, fileName)
+    }
+
     fun addToSimple1DHistory(time: Double, displacement: Double, velocity: Double, acceleration: Double) {
         val currentSnapshot = mutableListOf<Double>()
 
@@ -54,7 +63,7 @@ class DataCollector {
 
         do {
             index++
-            file = File("$baseName$index.$extension")
+            file = resolveSafeFile("$baseName$index.$extension")
         } while (file.exists())
 
         return index
@@ -63,7 +72,7 @@ class DataCollector {
     fun exportHistory(dimensionality: Int, complexity: Int): String {
         val index = getNextAvailableFileName("simulationResults","csv")
 
-        val file = File("simulationResults$index.csv")
+        val file = resolveSafeFile("simulationResults$index.csv")
 
         val currentTime = "${LocalDateTime.now()}"
 
@@ -142,7 +151,7 @@ class DataCollector {
 
         val index = getNextAvailableFileName("simulationGraph","png")
 
-        val fileName = "simulationGraph$index.png"
+        val fileName = resolveSafeFile("simulationGraph$index.png").absolutePath
 
         BitmapEncoder.saveBitmap(chart, fileName, BitmapEncoder.BitmapFormat.PNG)
 
