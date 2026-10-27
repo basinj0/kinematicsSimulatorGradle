@@ -77,7 +77,14 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
             )
         } else {
             lightColorScheme(
-
+                primary = Color(0xFF99BC85),
+                secondary = Color(0xFFBFD8AF),
+                tertiary = Color(0xFFE1F0DA),
+                background = Color(0xFFE1F0DA),
+                surface = Color(0xFFFFFFFF),
+                onPrimary = Color(0xFF1B301E),
+                onBackground = Color(0xFF1A1C19),
+                onSurface = Color(0xFF1A1C19),
             )
         }
 
