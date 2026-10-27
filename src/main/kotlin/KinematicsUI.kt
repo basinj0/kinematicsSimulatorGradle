@@ -17,7 +17,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.CheckboxDefaults.colors
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -36,13 +35,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.time.TimeSource
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.window.Window
 
 fun String.convertToDouble(): Double {
     return this.replace(",", ".").toDoubleOrNull() ?: 0.0
@@ -71,8 +64,26 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
 
         val logic = Logic()
 
+        val mainColourScheme = if (ThemeManager.currentTheme == "Dark Theme") {
+            darkColorScheme(
+                primary = Color(0xFFFC0050),
+                secondary = Color(0xFFC4003E),
+                tertiary = Color(0xFF63001D),
+                background = Color(0xFF000000),
+                surface = Color(0xFF470017),
+                onPrimary = Color.White,
+                onBackground = Color(0xFFE0E0E0),
+                onSurface = Color(0xFFE0E0E0)
+            )
+        } else {
+            lightColorScheme(
+
+            )
+        }
+
+
         MaterialTheme(
-            colorScheme = CustomDarkColorScheme
+            colorScheme = mainColourScheme
         ) {
             val focusRequester = remember { FocusRequester() }
 
@@ -134,8 +145,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                             modifier = Modifier.fillMaxWidth(0.8f).fillMaxHeight(0.8f),
                             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = CustomDarkColorScheme.surface,
-                                contentColor = CustomDarkColorScheme.onSurface
+                                containerColor = mainColourScheme.surface,
+                                contentColor = mainColourScheme.onSurface
                             )
                         ) {
 
@@ -151,8 +162,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                     .fillMaxHeight(),
                                                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                                                 colors = CardDefaults.cardColors(
-                                                    containerColor = CustomDarkColorScheme.tertiary,
-                                                    contentColor = CustomDarkColorScheme.onSurface
+                                                    containerColor = mainColourScheme.tertiary,
+                                                    contentColor = mainColourScheme.onSurface
                                                 )
                                             ) {
                                                 Column(
@@ -193,8 +204,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                     .fillMaxHeight(),
                                                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                                                 colors = CardDefaults.cardColors(
-                                                    containerColor = CustomDarkColorScheme.tertiary,
-                                                    contentColor = CustomDarkColorScheme.onSurface
+                                                    containerColor = mainColourScheme.tertiary,
+                                                    contentColor = mainColourScheme.onSurface
                                                 )
                                             ) {
                                                 Column(
@@ -210,11 +221,31 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                             onClick = { onStepChange(Step.CREDITS) },
                                                             shape = RoundedCornerShape(8.dp * scalar),
                                                             colors = ButtonDefaults.buttonColors(
-                                                                containerColor = CustomDarkColorScheme.secondary
+                                                                containerColor = mainColourScheme.secondary
                                                             )
                                                         ) {
                                                             Text(
                                                                 text = "Credits",
+                                                                fontWeight = FontWeight.Normal,
+                                                                fontSize = (24 * scalar).sp,
+                                                                textAlign = TextAlign.Center,
+                                                                fontFamily = JetBrainsMono,
+                                                                modifier = Modifier.padding(horizontal = 16.dp * scalar)
+                                                                    .padding(16.dp * scalar)
+                                                            )
+                                                        }
+
+                                                        Spacer(Modifier.height(24.dp * scalar))
+
+                                                        Button(
+                                                            onClick = { onStepChange(Step.SETTINGS) },
+                                                            shape = RoundedCornerShape(8.dp * scalar),
+                                                            colors = ButtonDefaults.buttonColors(
+                                                                containerColor = mainColourScheme.secondary
+                                                            )
+                                                        ) {
+                                                            Text(
+                                                                text = "Settings",
                                                                 fontWeight = FontWeight.Normal,
                                                                 fontSize = (24 * scalar).sp,
                                                                 textAlign = TextAlign.Center,
@@ -304,7 +335,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 8.dp * scalar),
                                                     colors = ButtonDefaults.buttonColors(
-                                                        containerColor = CustomDarkColorScheme.secondary,
+                                                        containerColor = mainColourScheme.secondary,
                                                     )
                                                 ) {
                                                     Text(
@@ -385,7 +416,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 4.dp * scalar),
                                                     colors = ButtonDefaults.buttonColors(
-                                                        containerColor = CustomDarkColorScheme.secondary,
+                                                        containerColor = mainColourScheme.secondary,
                                                     )
                                                 ) {
                                                     Text(
@@ -492,7 +523,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -515,7 +546,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -538,7 +569,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -561,7 +592,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -579,7 +610,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         modifier = Modifier.fillMaxWidth(),
                                                         shape = RoundedCornerShape(8.dp * scalar),
                                                         colors = ButtonDefaults.buttonColors(
-                                                            containerColor = CustomDarkColorScheme.primary,
+                                                            containerColor = mainColourScheme.primary,
                                                         )
                                                     ) {
                                                         Text(
@@ -627,7 +658,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -650,7 +681,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -673,7 +704,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -696,7 +727,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -719,7 +750,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -738,7 +769,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         modifier = Modifier.fillMaxWidth(),
                                                         shape = RoundedCornerShape(8.dp * scalar),
                                                         colors = ButtonDefaults.buttonColors(
-                                                            containerColor = CustomDarkColorScheme.primary,
+                                                            containerColor = mainColourScheme.primary,
                                                         )
                                                     ) {
                                                         Text(
@@ -786,7 +817,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -809,7 +840,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -832,7 +863,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -855,7 +886,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -878,7 +909,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -901,7 +932,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -929,7 +960,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         modifier = Modifier.fillMaxWidth(),
                                                         shape = RoundedCornerShape(8.dp * scalar),
                                                         colors = ButtonDefaults.buttonColors(
-                                                            containerColor = CustomDarkColorScheme.primary,
+                                                            containerColor = mainColourScheme.primary,
                                                         )
                                                     ) {
                                                         Text(
@@ -977,7 +1008,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -1000,7 +1031,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -1023,7 +1054,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -1046,7 +1077,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -1069,7 +1100,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -1092,7 +1123,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         textStyle = TextStyle(
                                                             fontFamily = JetBrainsMono,
                                                             fontSize = 20.sp,
-                                                            color = CustomDarkColorScheme.primary
+                                                            color = mainColourScheme.primary
                                                         )
                                                     )
 
@@ -1114,7 +1145,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         modifier = Modifier.fillMaxWidth(),
                                                         shape = RoundedCornerShape(8.dp * scalar),
                                                         colors = ButtonDefaults.buttonColors(
-                                                            containerColor = CustomDarkColorScheme.primary,
+                                                            containerColor = mainColourScheme.primary,
                                                         )
                                                     ) {
                                                         Text(
@@ -1168,7 +1199,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
                                                         fontWeight = FontWeight.Bold,
                                                         fontSize = 40.sp * scalar,
-                                                        color = CustomDarkColorScheme.primary,
+                                                        color = mainColourScheme.primary,
                                                         textAlign = TextAlign.Left
                                                     )
                                                     Spacer(modifier = Modifier.height(16.dp))
@@ -1285,7 +1316,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
                                                         fontWeight = FontWeight.Bold,
                                                         fontSize = 40.sp * scalar,
-                                                        color = CustomDarkColorScheme.primary
+                                                        color = mainColourScheme.primary
                                                     )
                                                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -1411,7 +1442,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
                                                         fontWeight = FontWeight.Bold,
                                                         fontSize = 40.sp * scalar,
-                                                        color = CustomDarkColorScheme.primary
+                                                        color = mainColourScheme.primary
                                                     )
                                                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -1518,7 +1549,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                 style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 40.sp * scalar,
-                                                color = CustomDarkColorScheme.primary
+                                                color = mainColourScheme.primary
                                             )
 
                                             Spacer(modifier = Modifier.height(24.dp))
@@ -1592,7 +1623,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                 shape = RoundedCornerShape(8.dp * scalar),
                                                 onClick = { onStepChange(Step.TITLE) },
                                                 colors = ButtonDefaults.buttonColors(
-                                                    containerColor = CustomDarkColorScheme.secondary
+                                                    containerColor = mainColourScheme.secondary
                                                 )
                                             ) {
                                                 Text(
@@ -1624,12 +1655,246 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                 fontSize = 24.sp * scalar,
                                                 lineHeight = 28.sp * scalar,
                                                 textAlign = TextAlign.Center,
-                                                color = CustomDarkColorScheme.onSurface
+                                                color = mainColourScheme.onSurface
                                             )
                                         }
                                     }
 
                                     Step.HISTORY -> TODO()
+
+                                    Step.SETTINGS -> {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth().fillMaxHeight().weight(1.0f),
+                                            ) {
+                                                Card(
+                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                    modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = mainColourScheme.tertiary
+                                                    )
+                                                ) {
+                                                    Column(
+                                                        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                        horizontalAlignment = Alignment.CenterHorizontally
+                                                    ) {
+                                                        Text(
+                                                            "Themes",
+                                                            fontFamily = JetBrainsMono,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontSize = 30.sp * scalar,
+                                                            textAlign = TextAlign.Center,
+                                                            modifier = Modifier.padding(8.dp * scalar),
+                                                            color = mainColourScheme.onSurface
+                                                        )
+
+                                                        Column(
+                                                            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center
+                                                        ) {
+                                                            if (ThemeManager.currentTheme == "Dark Theme") {
+                                                                Button(
+                                                                    onClick = { ThemeManager.currentTheme = "Light Theme" },
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.secondary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Light Theme",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                                Spacer(Modifier.height(24.dp * scalar))
+                                                                Button(
+                                                                    onClick = {},
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.primary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Dark Theme",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                            } else if (ThemeManager.currentTheme == "Light Theme") {
+                                                                Button(
+                                                                    onClick = { },
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.primary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Light Theme",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                                Spacer(Modifier.height(24.dp * scalar))
+                                                                Button(
+                                                                    onClick = { ThemeManager.currentTheme = "Dark Theme" },
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.secondary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Dark Theme",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            Spacer(modifier = Modifier.width(32.dp*scalar))
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth().fillMaxHeight().weight(1.0f),
+                                            ) {
+                                                Card(
+                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                    modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = mainColourScheme.tertiary
+                                                    )
+                                                ) {
+                                                    Text("")
+                                                }
+                                            }
+                                            Spacer(modifier = Modifier.width(32.dp*scalar))
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth().fillMaxHeight().weight(1.0f),
+                                            ) {
+                                                Card(
+                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                    modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = mainColourScheme.tertiary
+                                                    )
+                                                ) {
+                                                    Column(
+                                                        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                        horizontalAlignment = Alignment.CenterHorizontally
+                                                    ) {
+                                                        Text(
+                                                            "Language",
+                                                            fontFamily = JetBrainsMono,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontSize = 30.sp * scalar,
+                                                            textAlign = TextAlign.Center,
+                                                            modifier = Modifier.padding(8.dp * scalar),
+                                                            color = mainColourScheme.onSurface
+                                                        )
+
+                                                        Column(
+                                                            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center
+                                                        ) {
+                                                            if (LanguageManager.currentLanguage == "Italiano") {
+                                                                Button(
+                                                                    onClick = { LanguageManager.currentLanguage = "English" },
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.secondary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "English",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                                Spacer(Modifier.height(24.dp * scalar))
+                                                                Button(
+                                                                    onClick = {},
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.primary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Italiano",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                            } else if (LanguageManager.currentLanguage == "English") {
+                                                                Button(
+                                                                    onClick = { },
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.primary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "English",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                                Spacer(Modifier.height(24.dp * scalar))
+                                                                Button(
+                                                                    onClick = { LanguageManager.currentLanguage = "Italiano" },
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.secondary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Italiano",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
