@@ -14,8 +14,6 @@ jobs:
         include:
           - os: windows-latest
             platform-name: windows
-          - os: ubuntu-latest
-            platform-name: linux
 
     runs-on: ${{ matrix.os }}
 
@@ -50,11 +48,6 @@ jobs:
           if [ "${{ matrix.platform-name }}" == "windows" ]; then
             cp build/compose/binaries/main/exe/*.exe staging/KinematicsSimulator-Windows-x64.exe || true
             cp build/compose/binaries/main/msi/*.msi staging/KinematicsSimulator-Windows-x64.msi || true
-          
-          elif [ "${{ matrix.platform-name }}" == "linux" ]; then
-            cp build/compose/binaries/main/deb/*.deb staging/KinematicsSimulator-Linux-x64.deb || true
-            cp build/compose/binaries/main/rpm/*.rpm staging/KinematicsSimulator-Linux-x64.rpm || true
-          fi
 
       - name: Upload Files to GitHub Release
         uses: softprops/action-gh-release@v2
