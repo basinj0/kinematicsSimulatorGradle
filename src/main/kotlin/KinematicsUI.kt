@@ -125,7 +125,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
 
                 var createdObject by remember { mutableStateOf<Body>(SimpleBody1D(0.0, 0.0, 0.0)) }
                 var latestHistory by remember { mutableStateOf<DataCollector?>(null) }
-                var records = SimulationRecords()
+                val records = SimulationRecords()
                 var listOfRecords by remember { mutableStateOf<List<List<String>>?>(null) }
 
                 var historyIndexSelected by remember { mutableStateOf(0) }
@@ -167,7 +167,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                             ) {
                                 when (currentStep) {
                                     Step.TITLE -> {
-                                        Box() {
+                                        Box {
                                             Card(
                                                 modifier = Modifier.align(Alignment.TopEnd).fillMaxWidth(0.345f)
                                                     .fillMaxHeight(),
@@ -1667,8 +1667,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                 "Displacement / Time",
                                                                 "Time",
                                                                 "Displacement",
-                                                                latestHistory?.pullVariable(0) ?: null,
-                                                                latestHistory?.pullVariable(1) ?: null
+                                                                latestHistory?.pullVariable(0),
+                                                                latestHistory?.pullVariable(1)
                                                             ) ?: error("Graph failed to generate.")
                                                         }
 
@@ -1677,8 +1677,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                 "Displacement / Time",
                                                                 "Time",
                                                                 "Displacement",
-                                                                latestHistory?.pullVariable(0) ?: null,
-                                                                latestHistory?.pullVariable(1) ?: null
+                                                                latestHistory?.pullVariable(0),
+                                                                latestHistory?.pullVariable(1)
                                                             ) ?: error("Graph failed to generate.")
                                                         }
 
@@ -1687,8 +1687,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                 "Position Y / Position X",
                                                                 "Position X",
                                                                 "Position Y",
-                                                                latestHistory?.pullVariable(1) ?: null,
-                                                                latestHistory?.pullVariable(2) ?: null
+                                                                latestHistory?.pullVariable(1),
+                                                                latestHistory?.pullVariable(2)
                                                             ) ?: error("Graph failed to generate.")
                                                         }
                                                     }
@@ -1804,7 +1804,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                         fontSize = 40.sp * scalar
                                                                     )
                                                                     Spacer(modifier = Modifier.width(28.dp * scalar))
-                                                                    Column() {
+                                                                    Column {
                                                                         Text(
                                                                             "${dimension}D  |  Complexity $complexity",
                                                                             style = MaterialTheme.typography.titleLarge.copy(
@@ -1815,7 +1815,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                         )
                                                                         Spacer(modifier = Modifier.width(8.dp * scalar))
                                                                         Text(
-                                                                            "$timestamp",
+                                                                            timestamp,
                                                                             style = MaterialTheme.typography.titleLarge.copy(
                                                                                 fontFamily = JetBrainsMono
                                                                             ),
@@ -2109,7 +2109,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                             fontSize = 40.sp * scalar
                                                         )
                                                         Spacer(modifier = Modifier.width(28.dp * scalar))
-                                                        Column() {
+                                                        Column {
                                                             Text(
                                                                 "${dimension}D  |  Complexity $complexity",
                                                                 style = MaterialTheme.typography.titleLarge.copy(
@@ -2141,7 +2141,9 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                 val combinedLists = mutableListOf<List<String>>()
 
                                                 for (i in 0..<numberOfParameters) {
-                                                    val listToBeAdded = listOf(names?.get(i).toString() ?: "", initialValues?.get(i).toString() ?: "")
+                                                    val listToBeAdded = listOf(names?.get(i).toString(),
+                                                        initialValues?.get(i).toString()
+                                                    )
                                                     combinedLists.add(listToBeAdded)
                                                 }
 
@@ -2165,33 +2167,33 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                     onClick = {
                                                         when (dimension?.toInt()) {
                                                             1 if complexity?.toInt() == 1 -> {
-                                                                newHistory?.generateGraph(
+                                                                newHistory.generateGraph(
                                                                     "Displacement / Time",
                                                                     "Time",
                                                                     "Displacement",
-                                                                    newHistory?.pullVariable(0) ?: null,
-                                                                    newHistory?.pullVariable(1) ?: null
-                                                                ) ?: error("Graph failed to generate.")
+                                                                    newHistory.pullVariable(0),
+                                                                    newHistory.pullVariable(1)
+                                                                )
                                                             }
 
                                                             1 if complexity?.toInt() == 2 -> {
-                                                                newHistory?.generateGraph(
+                                                                newHistory.generateGraph(
                                                                     "Displacement / Time",
                                                                     "Time",
                                                                     "Displacement",
-                                                                    newHistory?.pullVariable(0) ?: null,
-                                                                    newHistory?.pullVariable(1) ?: null
-                                                                ) ?: error("Graph failed to generate.")
+                                                                    newHistory.pullVariable(0),
+                                                                    newHistory.pullVariable(1)
+                                                                )
                                                             }
 
                                                             2 if complexity?.toInt() == 1 -> {
-                                                                newHistory?.generateGraph(
+                                                                newHistory.generateGraph(
                                                                     "Position Y / Position X",
                                                                     "Position X",
                                                                     "Position Y",
-                                                                    newHistory?.pullVariable(1) ?: null,
-                                                                    newHistory?.pullVariable(2) ?: null
-                                                                ) ?: error("Graph failed to generate.")
+                                                                    newHistory.pullVariable(1),
+                                                                    newHistory.pullVariable(2)
+                                                                )
                                                             }
                                                         }
                                                     }

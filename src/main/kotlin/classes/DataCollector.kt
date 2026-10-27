@@ -1,6 +1,5 @@
 package classes
 
-import convertToDouble
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
