@@ -1,0 +1,60 @@
+name: Build and Release Desktop App
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform-name: windows
+          - os: macos-latest
+            platform-name: macos
+          - os: ubuntu-latest
+            platform-name: linux
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Grant execute permission for Gradle wrapper (Non-Windows)
+        if: runner.os != 'Windows'
+        run: chmod +x gradlew
+
+      - name: Build Native Distribution
+        run: ./gradlew packageDistributionForCurrentOS
+
+      - name: Prepare and Rename Artifacts
+        shell: bash
+        run: |
+          mkdir -p staging
+          
+          if [ "${{ matrix.platform-name }}" == "windows" ]; then
+            cp build/compose/binaries/main/exe/*.exe staging/KinematicsSimulator-Windows-x64.exe || true
+            cp build/compose/binaries/main/msi/*.msi staging/KinematicsSimulator-Windows-x64.msi || true
+          
+          elif [ "${{ matrix.platform-name }}" == "macos" ]; then
+            cp build/compose/binaries/main/dmg/*.dmg staging/KinematicsSimulator-macOS-x64.dmg || true
+          
+          elif [ "${{ matrix.platform-name }}" == "linux" ]; then
+            cp build/compose/binaries/main/deb/*.deb staging/KinematicsSimulator-Linux-x64.deb || true
+            cp build/compose/binaries/main/rpm/*.rpm staging/KinematicsSimulator-Linux-x64.rpm || true
+          fi
+
+      - name: Upload Files to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: staging/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
