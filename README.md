@@ -1,3 +1,3 @@
-# Current Version on alphaReleases is V0.2.5.0A
+# Current Version on alphaReleases is V0.3.0.0A (FR3A)
 
-# Current Version on fullReleases is V0.2.0.1A (FR2A Hotfix #1)
+# Current Version on fullReleases is V0.3.0.0A (FR3A)
