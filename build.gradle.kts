@@ -49,7 +49,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Exe, TargetFormat.Msi, TargetFormat.Dmg, TargetFormat.Deb)
             packageName = "KinematicsSimulator"
-            packageVersion = "0.3.0"
+            packageVersion = "1.3.0"
 
             windows {
                 dirChooser = true
