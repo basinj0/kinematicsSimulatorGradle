@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 class DataCollector {
 
-    val history = mutableListOf<List<Double>>()
+    var history = mutableListOf<List<Double>>()
 
     fun addToSimple1DHistory(time: Double, displacement: Double, velocity: Double, acceleration: Double) {
         val currentSnapshot = mutableListOf<Double>()

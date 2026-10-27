@@ -128,6 +128,8 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                 var records = SimulationRecords()
                 var listOfRecords by remember { mutableStateOf<List<List<String>>?>(null) }
 
+                var historyIndexSelected by remember { mutableStateOf(0) }
+
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -401,6 +403,19 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         chosenComplexity = 1
                                                         if (chosenDimension == 1) {
                                                             onStepChange(Step.INPUTS)
+                                                            initialDisplacementInput = ""
+                                                            initialVelocityInput = ""
+                                                            initialAccelerationInput = ""
+                                                            durationOfSimulationInput = ""
+                                                            initialJerkInput = ""
+
+                                                            initialMagnitudeInput = ""
+                                                            initialAngleInput = ""
+                                                            initialXVelocityInput = ""
+                                                            initialYVelocityInput = ""
+                                                            initialXPositionInput = ""
+                                                            initialYPositionInput = ""
+                                                            initialGravityInput = ""
                                                         } else {
                                                             onStepChange(Step.EXTRAPARAMETERS)
                                                         }
@@ -423,6 +438,19 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         chosenComplexity = 2
                                                         if (chosenDimension == 1) {
                                                             onStepChange(Step.INPUTS)
+                                                            initialDisplacementInput = ""
+                                                            initialVelocityInput = ""
+                                                            initialAccelerationInput = ""
+                                                            durationOfSimulationInput = ""
+                                                            initialJerkInput = ""
+
+                                                            initialMagnitudeInput = ""
+                                                            initialAngleInput = ""
+                                                            initialXVelocityInput = ""
+                                                            initialYVelocityInput = ""
+                                                            initialXPositionInput = ""
+                                                            initialYPositionInput = ""
+                                                            initialGravityInput = ""
                                                         } else {
                                                             onStepChange(Step.EXTRAPARAMETERS)
                                                         }
@@ -480,7 +508,21 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                             ) {
                                                 Button(
                                                     onClick = {
-                                                        chosenInputType = "Polar"; onStepChange(Step.INPUTS)
+                                                        chosenInputType = "Polar"
+                                                        onStepChange(Step.INPUTS)
+                                                        initialDisplacementInput = ""
+                                                        initialVelocityInput = ""
+                                                        initialAccelerationInput = ""
+                                                        durationOfSimulationInput = ""
+                                                        initialJerkInput = ""
+
+                                                        initialMagnitudeInput = ""
+                                                        initialAngleInput = ""
+                                                        initialXVelocityInput = ""
+                                                        initialYVelocityInput = ""
+                                                        initialXPositionInput = ""
+                                                        initialYPositionInput = ""
+                                                        initialGravityInput = ""
                                                     },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 4.dp * scalar)
@@ -497,7 +539,21 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                 }
                                                 Button(
                                                     onClick = {
-                                                        chosenInputType = "Cartesian"; onStepChange(Step.INPUTS)
+                                                        chosenInputType = "Cartesian"
+                                                        onStepChange(Step.INPUTS)
+                                                        initialDisplacementInput = ""
+                                                        initialVelocityInput = ""
+                                                        initialAccelerationInput = ""
+                                                        durationOfSimulationInput = ""
+                                                        initialJerkInput = ""
+
+                                                        initialMagnitudeInput = ""
+                                                        initialAngleInput = ""
+                                                        initialXVelocityInput = ""
+                                                        initialYVelocityInput = ""
+                                                        initialXPositionInput = ""
+                                                        initialYPositionInput = ""
+                                                        initialGravityInput = ""
                                                     },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 4.dp * scalar)
@@ -1718,12 +1774,17 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         val complexity = record[2]
                                                         val timestamp = record[3]
 
-                                                        Card(
+                                                        Button(
+                                                            onClick = {
+                                                                historyIndexSelected = index.toInt()
+                                                                onStepChange(Step.SELECTEDHISTORY)
+                                                            },
                                                             modifier = Modifier.fillMaxWidth(),
-                                                            colors = CardDefaults.cardColors(
+                                                            colors = ButtonDefaults.buttonColors(
                                                                 containerColor = mainColourScheme.tertiary,
                                                                 contentColor = Color.White
-                                                            )
+                                                            ),
+                                                            shape = RoundedCornerShape(12.dp * scalar)
                                                         ) {
                                                             Box(
                                                                 modifier = Modifier.fillMaxWidth()
@@ -2001,6 +2062,146 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                             }
                                                         }
                                                     }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Step.SELECTEDHISTORY -> {
+
+                                        listOfRecords = records.pullAllSimulationBasicInfos()
+
+                                        val record = listOfRecords?.get(historyIndexSelected-1)
+
+                                        val index = record?.get(0)
+                                        val dimension = record?.get(1)
+                                        val complexity = record?.get(2)
+                                        val timestamp = record?.get(3)
+
+                                        val newHistory = records.convertCSVIntoHistory(index?.toInt() ?: -1)
+
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                        ) {
+                                            Card(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                colors = CardDefaults.cardColors(
+                                                    containerColor = mainColourScheme.tertiary,
+                                                    contentColor = Color.White
+                                                ),
+                                                shape = RoundedCornerShape(12.dp * scalar)
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier.fillMaxWidth()
+                                                        .padding(16.dp * scalar)
+                                                        .padding(horizontal = 16.dp * scalar)
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Text(
+                                                            "#$index",
+                                                            style = MaterialTheme.typography.titleLarge.copy(
+                                                                fontFamily = JetBrainsMono
+                                                            ),
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontSize = 40.sp * scalar
+                                                        )
+                                                        Spacer(modifier = Modifier.width(28.dp * scalar))
+                                                        Column() {
+                                                            Text(
+                                                                "${dimension}D  |  Complexity $complexity",
+                                                                style = MaterialTheme.typography.titleLarge.copy(
+                                                                    fontFamily = JetBrainsMono
+                                                                ),
+                                                                fontWeight = FontWeight.Normal,
+                                                                fontSize = 24.sp * scalar
+                                                            )
+                                                            Spacer(modifier = Modifier.width(8.dp * scalar))
+                                                            Text(
+                                                                "$timestamp",
+                                                                style = MaterialTheme.typography.titleLarge.copy(
+                                                                    fontFamily = JetBrainsMono
+                                                                ),
+                                                                fontWeight = FontWeight.Normal,
+                                                                fontSize = 24.sp * scalar
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            Spacer(Modifier.height(24.dp * scalar))
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth().weight(1.0f).verticalScroll(scrollState),
+                                            ) {
+                                                val names = records.pullNamesOfParameters(index?.toInt() ?: -1)
+                                                val initialValues = records.pullInitialSimulationParameters(index?.toInt() ?: -1)
+                                                val numberOfParameters = names?.size ?: 0
+                                                val combinedLists = mutableListOf<List<String>>()
+
+                                                for (i in 0..<numberOfParameters) {
+                                                    val listToBeAdded = listOf(names?.get(i).toString() ?: "", initialValues?.get(i).toString() ?: "")
+                                                    combinedLists.add(listToBeAdded)
+                                                }
+
+                                                for (list in combinedLists) {
+                                                    Text(
+                                                        "${list[0]}: ${list[1]}",
+                                                        fontFamily = JetBrainsMono,
+                                                        fontWeight = FontWeight.Normal,
+                                                        fontSize = 25.sp * scalar,
+                                                        lineHeight = 30.sp * scalar
+                                                    )
+                                                }
+                                            }
+                                            Spacer(Modifier.height(24.dp))
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Button(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                    onClick = {
+                                                        when (dimension?.toInt()) {
+                                                            1 if complexity?.toInt() == 1 -> {
+                                                                newHistory?.generateGraph(
+                                                                    "Displacement / Time",
+                                                                    "Time",
+                                                                    "Displacement",
+                                                                    newHistory?.pullVariable(0) ?: null,
+                                                                    newHistory?.pullVariable(1) ?: null
+                                                                ) ?: error("Graph failed to generate.")
+                                                            }
+
+                                                            1 if complexity?.toInt() == 2 -> {
+                                                                newHistory?.generateGraph(
+                                                                    "Displacement / Time",
+                                                                    "Time",
+                                                                    "Displacement",
+                                                                    newHistory?.pullVariable(0) ?: null,
+                                                                    newHistory?.pullVariable(1) ?: null
+                                                                ) ?: error("Graph failed to generate.")
+                                                            }
+
+                                                            2 if complexity?.toInt() == 1 -> {
+                                                                newHistory?.generateGraph(
+                                                                    "Position Y / Position X",
+                                                                    "Position X",
+                                                                    "Position Y",
+                                                                    newHistory?.pullVariable(1) ?: null,
+                                                                    newHistory?.pullVariable(2) ?: null
+                                                                ) ?: error("Graph failed to generate.")
+                                                            }
+                                                        }
+                                                    }
+                                                ) {
+                                                    Text(
+                                                        "Generate Graph",
+                                                        fontFamily = JetBrainsMono,
+                                                        fontWeight = FontWeight.Normal,
+                                                        fontSize = 30.sp * scalar
+                                                    )
                                                 }
                                             }
                                         }
