@@ -1,10 +1,12 @@
 package classes
 
+import convertToDouble
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.style.markers.SeriesMarkers
 import java.io.File
+import java.time.LocalDateTime
 
 class DataCollector {
 
@@ -47,7 +49,7 @@ class DataCollector {
         history.add(currentSnapshot)
     }
 
-    fun getNextAvailableFileName(baseName: String, extension: String): String {
+    fun getNextAvailableFileName(baseName: String, extension: String): Int {
         var index = 1
         var file: File
 
@@ -56,16 +58,23 @@ class DataCollector {
             index++
         } while (file.exists())
 
-        return file.absolutePath
+        return index
     }
 
     fun exportHistory(dimensionality: Int, complexity: Int): String {
-        val file = File(getNextAvailableFileName("simulationResults","csv"))
+        val index = getNextAvailableFileName("simulationResults","csv")
+
+        val file = File("simulationResults$index.csv")
+
+        val currentTime = LocalDateTime.now()
+
+        val initialLine = "$index,$dimensionality,$complexity,$currentTime"
 
         when (dimensionality) {
             1 if complexity == 1 -> {
 
                 file.printWriter().use { out ->
+                    out.println(initialLine)
                     out.println("time,displacement,velocity,acceleration")
 
                     for (row in history) {
@@ -78,6 +87,7 @@ class DataCollector {
             1 if complexity == 2 -> {
 
                 file.printWriter().use { out ->
+                    out.println(initialLine)
                     out.println("time,displacement,velocity,acceleration,jerk")
 
                     for (row in history) {
@@ -93,6 +103,7 @@ class DataCollector {
             2 if complexity == 1 -> {
 
                 file.printWriter().use { out ->
+                    out.println(initialLine)
                     out.println("time,position x,position y,combined velocity,velocity x,velocity y,gravity")
 
                     for (row in history) {
@@ -130,7 +141,9 @@ class DataCollector {
 
         series.marker = SeriesMarkers.NONE
 
-        val fileName = getNextAvailableFileName("simulation_graph", "png")
+        val index = getNextAvailableFileName("simulationGraph","png")
+
+        val fileName = "simulationGraph$index.png"
 
         BitmapEncoder.saveBitmap(chart, fileName, BitmapEncoder.BitmapFormat.PNG)
 

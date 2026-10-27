@@ -21,6 +21,8 @@ class Logic {
         var simulationTime = 0.0
         val history = DataCollector()
 
+
+
         while (true) {
             val elapsed = lastTime.elapsedNow()
             lastTime = timeSource.markNow()
@@ -73,6 +75,8 @@ class Logic {
         var simulationTime = 0.0
         val history = DataCollector()
 
+        history.addToInter1DHistory(simulationDuration, body.getDisplacement(0.0), body.getCurrentVelocity(0.0), body.getCurrentAcceleration(0.0), body.jerk)
+
         while (true) {
             val elapsed = lastTime.elapsedNow()
             lastTime = timeSource.markNow()
@@ -124,6 +128,8 @@ class Logic {
         var lastTime = lastTime
         var simulationTime = 0.0
         val history = DataCollector()
+
+        history.addToSimple2DHistory(simulationDuration, body.getCurrentPositionX(0.0), body.getCurrentPositionY(0.0), body.getCurrentVelocity(0.0), body.getCurrentVelocityX(), body.getCurrentVelocityY(0.0), body.acceleration)
 
         while (true) {
             val elapsed = lastTime.elapsedNow()
