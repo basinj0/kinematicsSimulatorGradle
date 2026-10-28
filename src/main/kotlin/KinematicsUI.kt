@@ -37,6 +37,9 @@ import kotlin.math.sqrt
 import kotlin.time.TimeSource
 import androidx.compose.ui.focus.focusRequester
 import classes.SimulationRecords
+import androidx.compose.material3.TextField
+import com.example.compose.inverseOnSurfaceLight
+import com.example.compose.inversePrimaryLight
 
 fun String.convertToDouble(): Double {
     return this.replace(",", ".").toDoubleOrNull() ?: 0.0
@@ -78,10 +81,10 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
             )
         } else {
             lightColorScheme(
-                primary = Color(0xFF99BC85),
+                primary = Color(0xFFB3D29D),
                 secondary = Color(0xFFBFD8AF),
                 tertiary = Color(0xFFE1F0DA),
-                background = Color(0xFFE1F0DA),
+                background = Color(0xFFEBF5E6),
                 surface = Color(0xFFFFFFFF),
                 onPrimary = Color(0xFF1B301E),
                 onBackground = Color(0xFF1A1C19),
@@ -1956,7 +1959,139 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         containerColor = mainColourScheme.tertiary
                                                     )
                                                 ) {
-                                                    Text("")
+                                                    Column(
+                                                        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                        horizontalAlignment = Alignment.CenterHorizontally
+                                                    ) {
+                                                        Text(
+                                                            "Timing",
+                                                            fontFamily = JetBrainsMono,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontSize = 30.sp * scalar,
+                                                            textAlign = TextAlign.Center,
+                                                            modifier = Modifier.padding(8.dp * scalar),
+                                                            color = mainColourScheme.onSurface
+                                                        )
+
+                                                        Column(
+                                                            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center
+                                                        ) {
+                                                            if (Settings.currentSimulationTiming == "Real-Time") {
+                                                                Button(
+                                                                    onClick = { Settings.currentSimulationTiming = "Clock-Time" },
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.secondary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Clock-Time",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                                Spacer(Modifier.height(24.dp * scalar))
+                                                                Button(
+                                                                    onClick = {},
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.primary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Real-Time",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                                Spacer(Modifier.height(24.dp * scalar))
+                                                                OutlinedTextField(
+                                                                    value = Settings.hertz,
+                                                                    onValueChange = { Settings.hertz = it },
+                                                                    label = { Text(
+                                                                        text = "Hertz",
+                                                                        style = MaterialTheme.typography.titleLarge.copy(
+                                                                            fontFamily = JetBrainsMono
+                                                                        ),
+                                                                        fontWeight = FontWeight.Light,
+                                                                        fontSize = 16.sp * scalar
+                                                                    ) },
+                                                                    modifier = Modifier.fillMaxWidth(0.6f),
+                                                                    textStyle = TextStyle(
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontSize = 20.sp,
+                                                                        color = mainColourScheme.secondary,
+                                                                    ),
+                                                                    enabled = false
+                                                                )
+                                                            } else if (Settings.currentSimulationTiming == "Clock-Time") {
+                                                                Button(
+                                                                    onClick = { },
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.primary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Clock-Time",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                                Spacer(Modifier.height(24.dp * scalar))
+                                                                Button(
+                                                                    onClick = { Settings.currentSimulationTiming = "Real-Time" },
+                                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                                    colors = ButtonDefaults.buttonColors(
+                                                                        containerColor = mainColourScheme.secondary
+                                                                    )
+                                                                ) {
+                                                                    Text(
+                                                                        "Real-Time",
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        fontSize = 24.sp * scalar,
+                                                                        textAlign = TextAlign.Center,
+                                                                        modifier = Modifier.padding(8.dp * scalar),
+                                                                        color = mainColourScheme.onSurface
+                                                                    )
+                                                                }
+                                                                Spacer(Modifier.height(24.dp * scalar))
+                                                                OutlinedTextField(
+                                                                    value = Settings.hertz,
+                                                                    onValueChange = { Settings.hertz = it },
+                                                                    label = { Text(
+                                                                        text = "Hertz",
+                                                                        style = MaterialTheme.typography.titleLarge.copy(
+                                                                            fontFamily = JetBrainsMono
+                                                                        ),
+                                                                        fontWeight = FontWeight.Light,
+                                                                        fontSize = 16.sp * scalar
+                                                                    ) },
+                                                                    modifier = Modifier.fillMaxWidth(0.6f),
+                                                                    textStyle = TextStyle(
+                                                                        fontFamily = JetBrainsMono,
+                                                                        fontSize = 20.sp,
+                                                                        color = mainColourScheme.primary
+                                                                    )
+                                                                )
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                             Spacer(modifier = Modifier.width(32.dp*scalar))

@@ -10,9 +10,14 @@ object ThemeManager {
     var currentTheme by mutableStateOf("Dark Theme")
 }
 
-
 object LanguageManager {
     var currentLanguage by mutableStateOf("English")
+}
+
+object Settings {
+    var currentInputMethod by mutableStateOf("Cartesian")
+    var currentSimulationTiming by mutableStateOf("Clock-Time")
+    var hertz by mutableStateOf("500")
 }
 
 val JetBrainsMono = FontFamily(
