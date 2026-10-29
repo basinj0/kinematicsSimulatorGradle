@@ -28,4 +28,3 @@ val JetBrainsMono = FontFamily(
     Font(resource = "font/JetBrainsMono-ExtraBold.ttf", weight = FontWeight.ExtraBold),
     Font(resource = "font/JetBrainsMono-Medium.ttf", weight = FontWeight.Medium)
 )
-

@@ -2356,6 +2356,5 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                 focusRequester.requestFocus()
             }
         }
-
     }
 }
