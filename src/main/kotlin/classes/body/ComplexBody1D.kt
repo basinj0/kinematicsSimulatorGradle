@@ -15,10 +15,12 @@ class ComplexBody1D(
         id = ID
     }
 
-    override fun updateValues(hertz: Int) {
-        val timePassed = 1.0 / hertz
-
+    override fun updateValues(timePassed: Double) {
         position += velocity * timePassed
         velocity += acceleration * timePassed
+    }
+
+    fun outputAllValues() {
+        println("$position, $velocity, $acceleration, $mass, $width, $id")
     }
 }

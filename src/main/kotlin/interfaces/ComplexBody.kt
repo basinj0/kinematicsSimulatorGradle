@@ -6,5 +6,5 @@ interface ComplexBody {
 
     fun setID(id: Int)
 
-    fun updateValues(hertz: Int)
+    fun updateValues(timePassed : Double)
 }

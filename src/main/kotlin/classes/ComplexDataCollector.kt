@@ -1,6 +1,11 @@
 package classes
 
 import classes.body.ComplexBody1D
+import org.knowm.xchart.BitmapEncoder
+import org.knowm.xchart.SwingWrapper
+import org.knowm.xchart.XYChartBuilder
+import org.knowm.xchart.internal.series.Series
+import org.knowm.xchart.style.markers.SeriesMarkers
 import java.io.File
 import java.time.LocalDateTime
 
@@ -82,5 +87,76 @@ class ComplexDataCollector {
             3 -> { TODO() }
         }
         return ""
+    }
+
+    fun generateGraph(variableToShow: String, numberOfObjects: Int): String {
+
+        var xAxisName: String
+        var yAxisName: String
+        var chartTitle: String
+        var indexToPull: Int
+
+        if (variableToShow == "Position") {
+            xAxisName = "Time"
+            yAxisName = "Position"
+            chartTitle = "Position / Time"
+            indexToPull = 2
+        } else {
+            xAxisName = "Time"
+            yAxisName = "Velocity"
+            chartTitle = "Velocity / Time"
+            indexToPull = 3
+        }
+
+        val chart = XYChartBuilder()
+            .width(1280)
+            .height(720)
+            .xAxisTitle(xAxisName)
+            .yAxisTitle(yAxisName)
+            .title(chartTitle)
+            .build()
+
+        val xAxis = pullVariable(1)
+
+        var dataSeries = mutableListOf<List<Double?>>()
+
+        for (i in 1..numberOfObjects) {
+            val variableData = pullVariable(variableIndex = indexToPull + (7 * (i - 1)))
+            if (variableData != null) {
+                dataSeries.add(variableData)
+            }
+        }
+
+        for (i in dataSeries.indices) {
+            val series = chart.addSeries(
+                "$yAxisName ${i + 1}",
+                xAxis,
+                dataSeries[i]
+            )
+
+            series.setMarker(SeriesMarkers.NONE)
+        }
+        val index = getNextAvailableFileName("simulationGraph","png")
+
+        val fileName = resolveSafeFile("simulationGraph$index.png").absolutePath
+
+        BitmapEncoder.saveBitmap(chart, fileName, BitmapEncoder.BitmapFormat.PNG)
+
+        Thread {
+            val frame = SwingWrapper(chart).displayChart()
+            frame.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE)
+        }.start()
+
+        return "Graph saved successfully as $fileName!"
+    }
+
+    fun pullVariable(variableIndex: Int): List<Double?> {
+        val output = mutableListOf<Double?>()
+
+        for (row in complexHistory) {
+            output.add(row[variableIndex])
+        }
+
+        return output
     }
 }

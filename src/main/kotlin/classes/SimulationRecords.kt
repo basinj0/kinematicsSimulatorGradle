@@ -39,7 +39,7 @@ class SimulationRecords {
 
         val output = mutableListOf<List<String>>()
 
-        for (file in csvFiles.sortedBy { it.name }) {
+        for (file in csvFiles.sortedBy { ((it.name).drop(17).dropLast(4)).toInt() }) {
             getBasicInfoFromCSV(file)?.let {
                 output.add(it)
             }

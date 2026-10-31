@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import classes.DataCollector
+import classes.ComplexDataCollector
 import classes.body.InterBody1D
 import classes.body.SimpleBody1D
 import classes.body.SimpleBody2D
@@ -38,8 +39,11 @@ import kotlin.time.TimeSource
 import androidx.compose.ui.focus.focusRequester
 import classes.SimulationRecords
 import androidx.compose.material3.TextField
+import classes.ComplexLogic
+import classes.body.ComplexBody1D
 import com.example.compose.inverseOnSurfaceLight
 import com.example.compose.inversePrimaryLight
+import interfaces.ComplexBody
 
 fun String.convertToDouble(): Double {
     return this.replace(",", ".").toDoubleOrNull() ?: 0.0
@@ -67,6 +71,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
     ) {
 
         val logic = Logic()
+        var complexLogic by remember { mutableStateOf(ComplexLogic()) }
 
         val mainColourScheme = if (ThemeManager.currentTheme == "Dark Theme") {
             darkColorScheme(
@@ -124,14 +129,25 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                 var initialYPositionInput by remember { mutableStateOf("") }
                 var initialGravityInput by remember { mutableStateOf("") }
 
+                var initialMassInput by remember { mutableStateOf("") }
+                var initialWidthInput by remember { mutableStateOf("") }
+
                 val scrollState = rememberScrollState()
 
                 var createdObject by remember { mutableStateOf<Body>(SimpleBody1D(0.0, 0.0, 0.0)) }
+                var createdComplexObject by remember { mutableStateOf< ComplexBody>(ComplexBody1D(0.0, 0.0, 0.0, 0.0, 0.0, 0)) }
                 var latestHistory by remember { mutableStateOf<DataCollector?>(null) }
+                var latestComplexHistory by remember { mutableStateOf<ComplexDataCollector?>(null) }
                 val records = SimulationRecords()
                 var listOfRecords by remember { mutableStateOf<List<List<String>>?>(null) }
 
                 var historyIndexSelected by remember { mutableStateOf(0) }
+
+                var currentBodyIndex by remember { mutableStateOf(0) }
+                var hasFinishedInputting by remember { mutableStateOf(false) }
+                var hasFinishedOutputting by remember { mutableStateOf(false) }
+
+                var numberOfBodies by remember { mutableStateOf(1) }
 
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxSize()
@@ -473,11 +489,31 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                     )
                                                 }
                                                 Button(
-                                                    onClick = { TODO("Implement in Logic before enabling") },
+                                                    onClick = {
+                                                        initialDisplacementInput = ""
+                                                        initialVelocityInput = ""
+                                                        initialAccelerationInput = ""
+                                                        durationOfSimulationInput = ""
+                                                        initialJerkInput = ""
+
+                                                        initialMagnitudeInput = ""
+                                                        initialAngleInput = ""
+                                                        initialXVelocityInput = ""
+                                                        initialYVelocityInput = ""
+                                                        initialXPositionInput = ""
+                                                        initialYPositionInput = ""
+                                                        initialGravityInput = ""
+
+                                                        currentBodyIndex = 0
+
+                                                        hasFinishedInputting = false
+
+                                                        onStepChange(Step.COMPLEXINPUTS)
+                                                    },
                                                     shape = RoundedCornerShape(8.dp * scalar),
                                                     modifier = Modifier.padding(horizontal = 4.dp * scalar),
                                                     colors = ButtonDefaults.buttonColors(
-                                                        containerColor = mainColourScheme.secondary,
+                                                        containerColor = mainColourScheme.primary,
                                                     )
                                                 ) {
                                                     Text(
@@ -2342,6 +2378,492 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                         fontSize = 30.sp * scalar
                                                     )
                                                 }
+                                            }
+                                        }
+                                    }
+
+                                    Step.COMPLEXINPUTS -> {
+                                        when (chosenDimension) {
+                                            1 -> {
+
+                                                if (!hasFinishedInputting) {
+                                                    Text(
+                                                        "Enter Initial Parameters - Body ${currentBodyIndex + 1}",
+                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 40.sp * scalar
+                                                    )
+
+                                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                                    Column(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .verticalScroll(scrollState),
+                                                        horizontalAlignment = Alignment.CenterHorizontally
+                                                    ) {
+
+                                                        OutlinedTextField(
+                                                            value = initialDisplacementInput,
+                                                            onValueChange = { initialDisplacementInput = it },
+                                                            label = {
+                                                                Text(
+                                                                    "Initial Displacement (m)",
+                                                                    style = MaterialTheme.typography.titleLarge.copy(
+                                                                        fontFamily = JetBrainsMono
+                                                                    ),
+                                                                    fontWeight = FontWeight.Light,
+                                                                    fontSize = 16.sp * scalar
+                                                                )
+                                                            },
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            textStyle = TextStyle(
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = 20.sp,
+                                                                color = mainColourScheme.primary
+                                                            )
+                                                        )
+
+                                                        Spacer(modifier = Modifier.height(12.dp))
+
+                                                        OutlinedTextField(
+                                                            value = initialVelocityInput,
+                                                            onValueChange = { initialVelocityInput = it },
+                                                            label = {
+                                                                Text(
+                                                                    "Initial Velocity (m/s)",
+                                                                    style = MaterialTheme.typography.titleLarge.copy(
+                                                                        fontFamily = JetBrainsMono
+                                                                    ),
+                                                                    fontWeight = FontWeight.Light,
+                                                                    fontSize = 16.sp * scalar
+                                                                )
+                                                            },
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            textStyle = TextStyle(
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = 20.sp,
+                                                                color = mainColourScheme.primary
+                                                            )
+                                                        )
+
+                                                        Spacer(modifier = Modifier.height(12.dp))
+
+                                                        OutlinedTextField(
+                                                            value = initialAccelerationInput,
+                                                            onValueChange = { initialAccelerationInput = it },
+                                                            label = {
+                                                                Text(
+                                                                    "Initial Acceleration (m/s^2)",
+                                                                    style = MaterialTheme.typography.titleLarge.copy(
+                                                                        fontFamily = JetBrainsMono
+                                                                    ),
+                                                                    fontWeight = FontWeight.Light,
+                                                                    fontSize = 16.sp * scalar
+                                                                )
+                                                            },
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            textStyle = TextStyle(
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = 20.sp,
+                                                                color = mainColourScheme.primary
+                                                            )
+                                                        )
+
+                                                        Spacer(modifier = Modifier.height(12.dp))
+
+                                                        OutlinedTextField(
+                                                            value = initialMassInput,
+                                                            onValueChange = { initialMassInput = it },
+                                                            label = {
+                                                                Text(
+                                                                    "Mass of Body (kg)",
+                                                                    style = MaterialTheme.typography.titleLarge.copy(
+                                                                        fontFamily = JetBrainsMono
+                                                                    ),
+                                                                    fontWeight = FontWeight.Light,
+                                                                    fontSize = 16.sp * scalar
+                                                                )
+                                                            },
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            textStyle = TextStyle(
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = 20.sp,
+                                                                color = mainColourScheme.primary
+                                                            )
+                                                        )
+
+                                                        Spacer(modifier = Modifier.height(12.dp))
+
+                                                        OutlinedTextField(
+                                                            value = initialWidthInput,
+                                                            onValueChange = { initialWidthInput = it },
+                                                            label = {
+                                                                Text(
+                                                                    "Width of Body (m)",
+                                                                    style = MaterialTheme.typography.titleLarge.copy(
+                                                                        fontFamily = JetBrainsMono
+                                                                    ),
+                                                                    fontWeight = FontWeight.Light,
+                                                                    fontSize = 16.sp * scalar
+                                                                )
+                                                            },
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            textStyle = TextStyle(
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = 20.sp,
+                                                                color = mainColourScheme.primary
+                                                            )
+                                                        )
+
+                                                        Spacer(modifier = Modifier.height(24.dp))
+
+                                                        Button(
+                                                            onClick = {
+                                                                createdComplexObject = ComplexBody1D(
+                                                                    initialVelocityInput.convertToDouble(),
+                                                                    initialAccelerationInput.convertToDouble(),
+                                                                    initialDisplacementInput.convertToDouble(),
+                                                                    initialMassInput.convertToDouble(),
+                                                                    initialWidthInput.convertToDouble(),
+                                                                    currentBodyIndex
+                                                                )
+                                                                complexLogic.addBody(createdComplexObject)
+
+                                                                initialVelocityInput = ""
+                                                                initialAccelerationInput = ""
+                                                                initialDisplacementInput = ""
+                                                                initialMassInput = ""
+                                                                initialWidthInput = ""
+
+                                                                currentBodyIndex++
+
+                                                                (createdComplexObject as ComplexBody1D).outputAllValues()
+                                                            },
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            shape = RoundedCornerShape(8.dp * scalar),
+                                                            colors = ButtonDefaults.buttonColors(
+                                                                containerColor = mainColourScheme.primary,
+                                                            )
+                                                        ) {
+                                                            Text(
+                                                                "Next Body",
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontSize = 30.sp * scalar,
+                                                                textAlign = TextAlign.Center,
+                                                                fontFamily = JetBrainsMono
+                                                            )
+                                                        }
+
+                                                        Spacer(modifier = Modifier.height(24.dp))
+
+                                                        Button(
+                                                            onClick = {
+                                                                for (body in complexLogic.allBodies) {
+                                                                    val body = body as ComplexBody1D
+                                                                    body.outputAllValues()
+                                                                }
+                                                                onStepChange(Step.COMPLEXTIME)
+                                                            },
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            shape = RoundedCornerShape(8.dp * scalar),
+                                                            colors = ButtonDefaults.buttonColors(
+                                                                containerColor = mainColourScheme.primary,
+                                                            )
+                                                        ) {
+                                                            Text(
+                                                                "Finish Inputting",
+                                                                fontWeight = FontWeight.Bold,
+                                                                fontSize = 30.sp * scalar,
+                                                                textAlign = TextAlign.Center,
+                                                                fontFamily = JetBrainsMono
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Step.COMPLEXRUNNING -> {
+                                        when (chosenDimension) {
+                                            1 -> {
+
+                                                var liveBodies by remember { mutableStateOf<List<ComplexBody>>(emptyList()) }
+                                                var liveTime by remember { mutableStateOf(0.0)}
+
+                                                LaunchedEffect(Unit) {
+                                                    val body = createdObject
+                                                    val timeSource = TimeSource.Monotonic
+                                                    val startTime = timeSource.markNow()
+
+                                                    latestComplexHistory = withContext(Dispatchers.Default) {
+                                                        complexLogic.simulation1DComplex(
+                                                            durationOfSimulationInput.toDoubleOrNull() ?: 0.0,
+                                                            startTime,
+                                                        ) { allBod, time ->
+                                                            liveBodies = allBod
+                                                            liveTime = time
+                                                        }
+                                                    }
+                                                }
+
+                                                Column(
+                                                    modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                ) {
+                                                    Text(
+                                                        "Simulation Running",
+                                                        style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 40.sp * scalar,
+                                                        color = mainColourScheme.primary,
+                                                        textAlign = TextAlign.Left
+                                                    )
+                                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                                    Column(
+                                                        modifier = Modifier.fillMaxWidth().weight(1.0f)
+                                                            .verticalScroll(scrollState),
+                                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                                        verticalArrangement = Arrangement.Center
+                                                    ) {
+                                                        Text(
+                                                            "Time: ${String.format("%.2f", liveTime)} s",
+                                                            fontFamily = JetBrainsMono,
+                                                            fontSize = 20.sp * scalar
+                                                        )
+                                                        Spacer(modifier = Modifier.height(12.dp * scalar))
+
+
+                                                        for ((i, body) in liveBodies.withIndex()) {
+                                                            val body = body as ComplexBody1D
+
+                                                            Text(
+                                                                "Body ${i + 1}",
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = (30 * scalar).sp
+                                                            )
+                                                            Spacer(modifier = Modifier.height((12 * scalar).dp))
+                                                            Text(
+                                                                "Displacement: ${String.format("%.3f", body.position)} m",
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = (20 * scalar).sp
+                                                            )
+                                                            Spacer(modifier = Modifier.height((12 * scalar).dp))
+                                                            Text(
+                                                                "Velocity: ${String.format("%.3f", body.velocity)} m/s",
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = (20 * scalar).sp
+                                                            )
+                                                            Spacer(modifier = Modifier.height((12 * scalar).dp))
+                                                            Text(
+                                                                "Acceleration: ${String.format("%.3f", body.acceleration)} m/s^2",
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = (20 * scalar).sp
+                                                            )
+                                                        }
+
+                                                    }
+
+                                                    Spacer(modifier = Modifier.height(24.dp))
+
+                                                    if (liveTime >= durationOfSimulationInput.convertToDouble()) {
+                                                        OutlinedButton(
+                                                            onClick = {
+                                                                onStepChange(Step.COMPLEXRESULTS)
+                                                            },
+                                                            border = BorderStroke(1.dp * scalar, Color(0xFFC4003E)),
+                                                            shape = RoundedCornerShape(8.dp * scalar),
+                                                            modifier = Modifier.padding(horizontal = 4.dp * scalar),
+                                                        ) {
+                                                            Text(
+                                                                "Results",
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = 30.sp * scalar
+                                                            )
+                                                        }
+                                                    } else {
+                                                        OutlinedButton(
+                                                            onClick = { },
+                                                            border = BorderStroke(1.dp * scalar, Color(0x40C4003E)),
+                                                            shape = RoundedCornerShape(8.dp * scalar),
+                                                            modifier = Modifier.padding(horizontal = 4.dp * scalar)
+                                                        ) {
+                                                            Text(
+                                                                "Results",
+                                                                fontFamily = JetBrainsMono,
+                                                                fontSize = 30.sp * scalar,
+                                                                color = Color(0x40FFFFFF)
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Step.COMPLEXTIME -> {
+                                        Text(
+                                            "Enter Duration",
+                                            style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 40.sp * scalar
+                                        )
+
+                                        Spacer(modifier = Modifier.height(16.dp))
+
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth().fillMaxHeight(0.8f),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
+
+                                            OutlinedTextField(
+                                                value = durationOfSimulationInput,
+                                                onValueChange = { durationOfSimulationInput = it },
+                                                label = {
+                                                    Text(
+                                                        "Length of Simulation (s)",
+                                                        style = MaterialTheme.typography.titleLarge.copy(
+                                                            fontFamily = JetBrainsMono
+                                                        ),
+                                                        fontWeight = FontWeight.Light,
+                                                        fontSize = 16.sp * scalar
+                                                    )
+                                                },
+                                                modifier = Modifier.fillMaxWidth(),
+                                                textStyle = TextStyle(
+                                                    fontFamily = JetBrainsMono,
+                                                    fontSize = 20.sp,
+                                                    color = mainColourScheme.primary
+                                                )
+                                            )
+                                        }
+
+                                        Spacer(modifier = Modifier.height(16.dp))
+
+                                        Button(
+                                            onClick = {
+                                                for (body in complexLogic.allBodies) {
+                                                    val body = body as ComplexBody1D
+                                                    body.outputAllValues()
+                                                }
+                                                onStepChange(Step.COMPLEXRUNNING)
+                                            },
+                                            modifier = Modifier.fillMaxWidth(),
+                                            shape = RoundedCornerShape(8.dp * scalar),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = mainColourScheme.primary,
+                                            )
+                                        ) {
+                                            Text(
+                                                "Run Simulation",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 30.sp * scalar,
+                                                textAlign = TextAlign.Center,
+                                                fontFamily = JetBrainsMono
+                                            )
+                                        }
+                                    }
+
+                                    Step.COMPLEXRESULTS -> {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                "Results",
+                                                style = MaterialTheme.typography.titleLarge.copy(fontFamily = JetBrainsMono),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 40.sp * scalar,
+                                                color = mainColourScheme.primary
+                                            )
+
+                                            Spacer(modifier = Modifier.height(24.dp))
+
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth().weight(1.0f),
+                                                verticalArrangement = Arrangement.Center
+                                            ) {
+                                                Text(
+                                                    text = latestComplexHistory?.exportComplexHistory(
+                                                        chosenDimension,
+                                                        complexLogic.allBodies.size
+                                                    )
+                                                        ?: "History Failed to Generate",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontWeight = FontWeight.Normal,
+                                                    modifier = Modifier.padding(horizontal = 12.dp * scalar),
+                                                    fontSize = 20.sp * scalar
+                                                )
+                                            }
+
+                                            Spacer(modifier = Modifier.height(24.dp))
+
+                                            Row() {
+                                                Button(
+                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                    onClick = {
+                                                        when (chosenDimension) {
+                                                            1 -> {
+                                                                latestComplexHistory?.generateGraph(
+                                                                    "Position",
+                                                                    complexLogic.allBodies.size
+                                                                ) ?: error("Failed to generate graph")
+                                                            }
+                                                        }
+                                                    }
+                                                ) {
+                                                    Text(
+                                                        "Generate Position Graph",
+                                                        fontFamily = JetBrainsMono,
+                                                        fontWeight = FontWeight.Normal,
+                                                        fontSize = 20.sp * scalar
+                                                    )
+                                                }
+                                                Spacer(modifier = Modifier.width(24.dp))
+                                                Button(
+                                                    shape = RoundedCornerShape(8.dp * scalar),
+                                                    onClick = {
+                                                        when (chosenDimension) {
+                                                            1 -> {
+                                                                latestComplexHistory?.generateGraph(
+                                                                    "Velocity",
+                                                                    complexLogic.allBodies.size
+                                                                ) ?: error("Failed to generate graph")
+                                                            }
+                                                        }
+                                                    }
+                                                ) {
+                                                    Text(
+                                                        "Generate Velocity Graph",
+                                                        fontFamily = JetBrainsMono,
+                                                        fontWeight = FontWeight.Normal,
+                                                        fontSize = 20.sp * scalar
+                                                    )
+                                                }
+                                            }
+
+                                            Spacer(modifier = Modifier.height(24.dp))
+
+                                            Button(
+                                                shape = RoundedCornerShape(8.dp * scalar),
+                                                onClick = {
+                                                    onStepChange(Step.TITLE)
+                                                    complexLogic.resetList()
+                                                },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = mainColourScheme.secondary
+                                                )
+                                            ) {
+                                                Text(
+                                                    "Reset",
+                                                    fontFamily = JetBrainsMono,
+                                                    fontWeight = FontWeight.Normal,
+                                                    fontSize = 24.sp * scalar,
+                                                    color = Color(0xFF000000)
+                                                )
                                             }
                                         }
                                     }

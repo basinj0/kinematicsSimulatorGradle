@@ -1,8 +1,11 @@
 package classes
 
 import classes.body.ComplexBody1D
+import classes.body.SimpleBody1D
 import interfaces.ComplexBody
 import kotlin.math.abs
+import kotlin.math.round
+import kotlin.time.TimeSource
 
 class ComplexLogic {
 
@@ -17,9 +20,9 @@ class ComplexLogic {
         allBodies.add(body)
     }
 
-    fun updateAllBodies(hertz: Int) {
+    fun updateAllBodies(timePassed: Double) {
         for (body in allBodies) {
-            body.updateValues(hertz)
+            body.updateValues(timePassed)
         }
     }
 
@@ -40,6 +43,10 @@ class ComplexLogic {
 
         object1.velocity = (((mass1 - (elasticity * mass2)) * velocity1) + mass2 * (1 + elasticity) * velocity2) / (mass1 + mass2)
         object2.velocity = (((mass2 - (elasticity * mass1)) * velocity2) + mass1 * (1 + elasticity) * velocity1) / (mass1 + mass2)
+    }
+
+    fun pull1DBody(bodyIndex: Int): ComplexBody1D {
+        return allBodies[bodyIndex] as ComplexBody1D
     }
 
     fun checkAll1DBodies(allBodies: List<ComplexBody>) {
@@ -66,25 +73,68 @@ class ComplexLogic {
         }
     }
 
-    fun simulation1DComplex(duration: Double) {
+    fun simulation1DComplex(
+        duration: Double,
+        lastTime: TimeSource.Monotonic.ValueTimeMark,
+        onTick: (allBod: List<ComplexBody>, time: Double) -> Unit
+    ): ComplexDataCollector {
+
+        val timeSource = TimeSource.Monotonic
+        var lastTime = lastTime
 
         val history = ComplexDataCollector()
 
         val hertz = Settings.hertz.toInt()
+        val lengthOfTimePassed = 1.0 / hertz
 
-        var simTime = 0.0
-
-        while (simTime < duration) {
-
-            updateAllBodies(hertz)
-
-            checkAll1DBodies(allBodies)
-
-            simTime += (1.0 / hertz)
-
-            history.addToComplex1DHistory(allBodies as List<ComplexBody1D>, simTime)
+        for (body in allBodies) {
+            val body = body as ComplexBody1D
+            body.outputAllValues()
         }
 
-        println(history.exportComplexHistory(1,allBodies.size))
+        if (Settings.currentSimulationTiming == "Real-Time") {
+            var simTime = 0.0
+
+            while (simTime < duration) {
+
+                val elapsed = lastTime.elapsedNow()
+                lastTime = timeSource.markNow()
+
+                val dt = elapsed.inWholeNanoseconds / 1000000000.0
+
+                simTime += dt
+
+                updateAllBodies(dt)
+
+                checkAll1DBodies(allBodies)
+
+                history.addToComplex1DHistory(allBodies as List<ComplexBody1D>, (round(simTime*1000))/1000)
+
+                onTick(allBodies, simTime)
+
+                Thread.sleep(5)
+            }
+
+            return history
+
+        } else {
+
+            var simTime = 0.0
+
+            while (simTime < duration) {
+
+                updateAllBodies(lengthOfTimePassed)
+
+                checkAll1DBodies(allBodies)
+
+                simTime += (1.0 / Settings.hertz.toInt())
+
+                history.addToComplex1DHistory(allBodies as List<ComplexBody1D>, simTime)
+
+                onTick(allBodies as List<ComplexBody1D>, simTime)
+            }
+
+            return history
+        }
     }
 }

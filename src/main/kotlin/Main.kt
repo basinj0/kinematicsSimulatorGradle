@@ -10,7 +10,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 
-enum class Step { TITLE, DIMENSION, COMPLEXITY, EXTRAPARAMETERS, INPUTS, RUNNING, RESULTS, CREDITS, HISTORY, SETTINGS, SELECTEDHISTORY }
+enum class Step { TITLE, DIMENSION, COMPLEXITY, EXTRAPARAMETERS, INPUTS, RUNNING, RESULTS, CREDITS, HISTORY, SETTINGS, SELECTEDHISTORY, COMPLEXINPUTS, COMPLEXTIME, COMPLEXRUNNING, COMPLEXRESULTS }
 
 fun main() = application {
 
@@ -34,6 +34,10 @@ fun main() = application {
                     Step.HISTORY -> { currentStep = Step.TITLE }
                     Step.SETTINGS -> { currentStep = Step.TITLE }
                     Step.SELECTEDHISTORY -> { currentStep = Step.HISTORY }
+                    Step.COMPLEXINPUTS -> { }
+                    Step.COMPLEXRUNNING -> { }
+                    Step.COMPLEXTIME -> TODO()
+                    Step.COMPLEXRESULTS -> { }
                 }
 
                 true
