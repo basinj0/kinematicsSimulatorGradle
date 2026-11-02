@@ -9,7 +9,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import classes.ErrorList
 
 enum class Step {
     TITLE,
@@ -71,10 +70,5 @@ fun main() = application {
             currentStep = currentStep,
             onStepChange = { newStep -> currentStep = newStep }
         )
-        val errorList = remember {
-            ErrorList { newStep ->
-                currentStep = newStep
-            }
-        }
     }
 }

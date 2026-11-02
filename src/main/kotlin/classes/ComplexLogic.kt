@@ -1,19 +1,19 @@
 package classes
 
 import classes.body.ComplexBody1D
-import classes.body.SimpleBody1D
 import interfaces.ComplexBody
 import kotlin.math.abs
 import kotlin.math.round
 import kotlin.time.TimeSource
 
+@Suppress("UNCHECKED_CAST")
 class ComplexLogic {
 
     var allBodies = mutableListOf<ComplexBody>()
     var elasticity = 0.0
 
     fun resetList() {
-        allBodies = mutableListOf<ComplexBody>()
+        allBodies = mutableListOf()
     }
 
     fun addBody(body: ComplexBody) {
@@ -46,27 +46,23 @@ class ComplexLogic {
         object2.velocity = (((mass2 - (elasticity * mass1)) * velocity2) + mass1 * (1 + elasticity) * velocity1) / (mass1 + mass2)
     }
 
-    fun pull1DBody(bodyIndex: Int): ComplexBody1D {
-        return allBodies[bodyIndex] as ComplexBody1D
-    }
-
     fun checkAll1DBodies(allBodies: List<ComplexBody>) {
 
-        val bodies = allBodies as List<ComplexBody1D>
+        val bodies = allBodies as List<*>
 
         var index = 0
 
         var comparisonBody: ComplexBody1D
-        var comparisonIndex = 0
+        var comparisonIndex: Int
 
         while (index < allBodies.size - 1) {
-            comparisonBody = bodies[index]
+            comparisonBody = bodies[index] as ComplexBody1D
             comparisonIndex = index
 
             index++
 
             while (index < allBodies.size) {
-                are1DBodiesColliding(comparisonBody, bodies[index])
+                are1DBodiesColliding(comparisonBody, bodies[index] as ComplexBody1D)
                 index++
             }
 

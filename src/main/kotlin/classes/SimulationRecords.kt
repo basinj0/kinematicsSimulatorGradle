@@ -111,7 +111,7 @@ class SimulationRecords {
 
         while (true) {
 
-            if (newLine3?.get(7 * index) == "") {
+            if (newLine3[7 * index] == "") {
                 return index - 1
             }
 
@@ -140,10 +140,4 @@ class SimulationRecords {
         return output
     }
 
-    fun pullDimension(index: Int) {
-        val file = resolveSafeFile("simulationResults$index.csv")
-        val info = getBasicInfoFromCSV(file)
-
-
-    }
 }

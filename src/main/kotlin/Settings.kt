@@ -15,7 +15,6 @@ object LanguageManager {
 }
 
 object Settings {
-    var currentInputMethod by mutableStateOf("Cartesian")
     var currentSimulationTiming by mutableStateOf("Clock-Time")
     var hertz by mutableStateOf("500")
 }

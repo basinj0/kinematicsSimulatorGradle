@@ -11,8 +11,8 @@ class ComplexBody1D(
     override var id: Int?
 ) : ComplexBody {
 
-    override fun setID(ID: Int) {
-        id = ID
+    override fun setID(id: Int) {
+        this@ComplexBody1D.id = id
     }
 
     override fun updateValues(timePassed: Double) {

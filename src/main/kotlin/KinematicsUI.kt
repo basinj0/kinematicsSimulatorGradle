@@ -153,9 +153,6 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
 
                 var currentBodyIndex by remember { mutableStateOf(0) }
                 var hasFinishedInputting by remember { mutableStateOf(false) }
-                var hasFinishedOutputting by remember { mutableStateOf(false) }
-
-                var numberOfBodies by remember { mutableStateOf(1) }
 
                 var elasticityInput by remember { mutableStateOf("") }
 
@@ -223,7 +220,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                             Text(
                                                                 modifier = Modifier.padding(horizontal = 16.dp * scalar)
                                                                     .padding(vertical = 8.dp * scalar),
-                                                                text = "/// Patch Notes ///\n/// FR3A ///",
+                                                                text = "/// Patch Notes ///\n/// FR4A ///",
                                                                 fontWeight = FontWeight.Bold,
                                                                 fontSize = (24 * scalar).sp,
                                                                 textAlign = TextAlign.Center,
@@ -234,12 +231,13 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                             Text(
                                                                 modifier = Modifier.padding(horizontal = 16.dp * scalar)
                                                                     .padding(vertical = 8.dp * scalar),
-                                                                text = "Added UI \n A UI has been created and implemented with previous logic including running simulations and generating graphs. \n\n" +
-                                                                        "Added Settings & History \n A page for a history of simulations that have been run and settings to change the theme of the app.",
+                                                                text = "Added 1D Complex \n 1D Complex has been implemented including its usage in the History tab. \n\n" +
+                                                                        "Added Errors and Settings \n A setting for changing between Clock and Real Time has been added. Error handling has also been added.",
                                                                 fontWeight = FontWeight.Normal,
                                                                 fontSize = (20 * scalar).sp,
                                                                 textAlign = TextAlign.Center,
-                                                                fontFamily = JetBrainsMono
+                                                                fontFamily = JetBrainsMono,
+                                                                lineHeight = 25.sp * scalar
                                                             )
                                                         }
                                                     }
@@ -2668,7 +2666,6 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                     var liveTime by remember { mutableStateOf(0.0) }
 
                                                     LaunchedEffect(Unit) {
-                                                        val body = createdObject
                                                         val timeSource = TimeSource.Monotonic
                                                         val startTime = timeSource.markNow()
 
@@ -2915,7 +2912,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
 
                                                 Spacer(modifier = Modifier.height(24.dp))
 
-                                                Row() {
+                                                Row {
                                                     Button(
                                                         shape = RoundedCornerShape(8.dp * scalar),
                                                         onClick = {
@@ -3054,7 +3051,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
 
                                                     val names = records.pullNamesOfParameters(index?.toInt() ?: -1)
                                                         ?: emptyList()
-                                                    var numberOfObjects =
+                                                    val numberOfObjects =
                                                         records.getNumberOfObjectsFromComplexCSV(index?.toInt() ?: -1)
                                                     val initialValues =
                                                         records.pullInitialSimulationParameters(index?.toInt() ?: -1)
@@ -3064,24 +3061,22 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                     val combinedLists = mutableListOf<List<String>>()
 
                                                     val numberOfParameters =
-                                                        names?.size?.times(numberOfObjects?.toInt() ?: 0) ?: 0
+                                                        names.size.times(numberOfObjects ?: 0)
 
                                                     for (i in 0..<numberOfParameters) {
                                                         val listToBeAdded = listOf(
-                                                            names?.get(i % 7).toString(),
-                                                            filteredInitialValues?.get(i).toString()
+                                                            names[i % 7],
+                                                            filteredInitialValues[i]
                                                         )
                                                         combinedLists.add(listToBeAdded)
                                                     }
 
                                                     for (list in combinedLists) {
-                                                        var textToBeWritten: String
 
-                                                        if (list[0] == "objectIndex") {
-                                                            textToBeWritten =
-                                                                "\n Body ${list[1].toDouble().toInt() + 1} "
+                                                        val textToBeWritten: String = if (list[0] == "objectIndex") {
+                                                            "\n Body ${list[1].toDouble().toInt() + 1} "
                                                         } else {
-                                                            textToBeWritten = "${list[0]}: ${list[1]}"
+                                                            "${list[0]}: ${list[1]}"
                                                         }
 
                                                         Text(
@@ -3098,18 +3093,18 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                 Column(
                                                     modifier = Modifier.fillMaxWidth()
                                                 ) {
-                                                    Row() {
+                                                    Row {
                                                         Button(
                                                             shape = RoundedCornerShape(8.dp * scalar),
                                                             onClick = {
                                                                 when (dimension?.toInt()) {
                                                                     1 -> {
-                                                                        newHistory?.generateGraph(
+                                                                        newHistory.generateGraph(
                                                                             "Position",
                                                                             records.getNumberOfObjectsFromComplexCSV(
                                                                                 index?.toInt() ?: -1
                                                                             )
-                                                                        ) ?: errorList.error("G01"); println("hit 7"); onStepChange(Step.ERROR)
+                                                                        ); println("hit 7"); onStepChange(Step.ERROR)
                                                                     }
                                                                 }
                                                             }
@@ -3127,12 +3122,12 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                             onClick = {
                                                                 when (dimension?.toInt()) {
                                                                     1 -> {
-                                                                        newHistory?.generateGraph(
+                                                                        newHistory.generateGraph(
                                                                             "Velocity",
                                                                             records.getNumberOfObjectsFromComplexCSV(
                                                                                 index?.toInt() ?: -1
                                                                             )
-                                                                        ) ?: errorList.error("G01"); println("hit 6"); onStepChange(Step.ERROR)
+                                                                        ); println("hit 6"); onStepChange(Step.ERROR)
                                                                     }
                                                                 }
                                                             }

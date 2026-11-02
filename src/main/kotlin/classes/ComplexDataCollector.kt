@@ -88,7 +88,7 @@ class ComplexDataCollector {
         return ""
     }
 
-    fun generateGraph(variableToShow: String, numberOfObjects: Int?): String? {
+    fun generateGraph(variableToShow: String, numberOfObjects: Int?): String {
 
         var xAxisName: String
         var yAxisName: String
@@ -117,9 +117,9 @@ class ComplexDataCollector {
 
         val xAxis = pullVariable(1)
 
-        var dataSeries = mutableListOf<List<Double?>>()
+        val dataSeries = mutableListOf<List<Double?>>()
 
-        for (i in 1..(numberOfObjects?.toInt() ?: 0)) {
+        for (i in 1..(numberOfObjects ?: 0)) {
             val variableData = pullVariable(variableIndex = indexToPull + (7 * (i - 1)))
             dataSeries.add(variableData)
         }
