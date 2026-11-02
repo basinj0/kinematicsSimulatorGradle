@@ -38,6 +38,12 @@ jobs:
       - name: Build Native Distribution
         run: ./gradlew packageDistributionForCurrentOS
 
+      - name: Print jpackage error log on failure
+        if: failure()
+        run: |
+          echo "--- JPACKAGE ERROR LOG ---"
+          cat build/compose/logs/createDistributable/*-err.txt || true
+
       - name: Prepare and Rename Artifacts
         shell: bash
         run: |
@@ -54,7 +60,7 @@ jobs:
             cp build/compose/binaries/main/deb/*.deb staging/KinematicsSimulator-Linux-x64.deb || true
             cp build/compose/binaries/main/rpm/*.rpm staging/KinematicsSimulator-Linux-x64.rpm || true
           fi
-
+          
       - name: Upload Files to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
