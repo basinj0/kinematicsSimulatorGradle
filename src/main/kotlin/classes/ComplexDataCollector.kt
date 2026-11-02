@@ -4,7 +4,6 @@ import classes.body.ComplexBody1D
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.SwingWrapper
 import org.knowm.xchart.XYChartBuilder
-import org.knowm.xchart.internal.series.Series
 import org.knowm.xchart.style.markers.SeriesMarkers
 import java.io.File
 import java.time.LocalDateTime
@@ -67,7 +66,7 @@ class ComplexDataCollector {
 
                 file.printWriter().use { out ->
                     out.println(initialLine)
-                    out.println("objectIndex,time,displacement,velocity,acceleration,mass,width,spacer,")
+                    out.println("objectIndex,time,displacement,velocity,acceleration,mass,width")
 
                     for (row in complexHistory) {
                         var i = 0
@@ -89,7 +88,7 @@ class ComplexDataCollector {
         return ""
     }
 
-    fun generateGraph(variableToShow: String, numberOfObjects: Int): String {
+    fun generateGraph(variableToShow: String, numberOfObjects: Int?): String? {
 
         var xAxisName: String
         var yAxisName: String
@@ -120,22 +119,23 @@ class ComplexDataCollector {
 
         var dataSeries = mutableListOf<List<Double?>>()
 
-        for (i in 1..numberOfObjects) {
+        for (i in 1..(numberOfObjects?.toInt() ?: 0)) {
             val variableData = pullVariable(variableIndex = indexToPull + (7 * (i - 1)))
-            if (variableData != null) {
-                dataSeries.add(variableData)
+            dataSeries.add(variableData)
+        }
+
+
+            for (i in dataSeries.indices) {
+                val series = chart.addSeries(
+                    "$yAxisName ${i + 1}",
+                    xAxis,
+                    dataSeries[i]
+                )
+
+                series.setMarker(SeriesMarkers.NONE)
             }
-        }
 
-        for (i in dataSeries.indices) {
-            val series = chart.addSeries(
-                "$yAxisName ${i + 1}",
-                xAxis,
-                dataSeries[i]
-            )
 
-            series.setMarker(SeriesMarkers.NONE)
-        }
         val index = getNextAvailableFileName("simulationGraph","png")
 
         val fileName = resolveSafeFile("simulationGraph$index.png").absolutePath
@@ -153,7 +153,12 @@ class ComplexDataCollector {
     fun pullVariable(variableIndex: Int): List<Double?> {
         val output = mutableListOf<Double?>()
 
+        var index = 0
+
         for (row in complexHistory) {
+            if (index == 0) {
+                index++; continue
+            }
             output.add(row[variableIndex])
         }
 

@@ -125,11 +125,20 @@ class DataCollector {
         return ""
     }
 
-    fun pullVariable(variableIndex: Int): List<Double> {
+    fun pullVariable(variableIndex: Int): List<Double>? {
         val output = mutableListOf<Double>()
 
-        for (row in history) {
-            output.add(row[variableIndex])
+        var index = 0
+
+        try {
+            for (row in history) {
+                if (index == 0) {
+                    index++; continue
+                }
+                output.add(row[variableIndex])
+            }
+        } catch (e: Exception) {
+            return null
         }
 
         return output

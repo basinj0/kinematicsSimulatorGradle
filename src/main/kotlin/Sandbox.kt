@@ -14,39 +14,34 @@ import kotlin.time.TimeSource
 
 fun main() {
 
-    val complexLogic = ComplexLogic()
+    val records = SimulationRecords()
 
-    val body1 = ComplexBody1D(10.0,0.0, 0.0, 1.0, 1.0, 0)
-    val body2 = ComplexBody1D(0.0,0.0, 8.0, 3.0, 1.0, 1)
-    val body3 = ComplexBody1D(0.0,0.0, 16.0, 9.0, 1.0, 2)
-    val body4 = ComplexBody1D(0.0,0.0, 24.0, 27.0, 1.0, 3)
-    val body5 = ComplexBody1D(0.0,0.0, 32.0, 81.0, 1.0, 4)
-    val body6 = ComplexBody1D(0.0,0.0, 40.0, 243.0, 1.0, 5)
-
-    complexLogic.addBody(body1)
-    complexLogic.addBody(body2)
-    complexLogic.addBody(body3)
-    complexLogic.addBody(body4)
-    complexLogic.addBody(body5)
-    complexLogic.addBody(body6)
-
-    val timeSource = TimeSource.Monotonic
-    val startTime = timeSource.markNow()
-
-    var liveBodies : List<ComplexBody>
-    var liveTime = 0.0
-
-    var latestComplexHistory: ComplexDataCollector
+    val index = 40
+    val historyIndexSelected = 41
 
 
-    latestComplexHistory = complexLogic.simulation1DComplex(
-        10.0,
-        startTime,
-    ) { allBod, time ->
-        liveBodies = allBod
-        liveTime = time
+    val names = records.pullNamesOfParameters(index?.toInt() ?: -1)
+    val numberOfObjects = records.getNumberOfObjectsFromComplexCSV(historyIndexSelected-1) ?: 0
+    var initialValues = records.pullInitialSimulationParameters(index?.toInt() ?: -1)
+    val numberOfParameters = names?.size?.times(numberOfObjects) ?: 0
+    val combinedLists = mutableListOf<List<String>>()
+
+    val filteredInitialValues = mutableListOf<String>()
+
+    if (initialValues != null) {
+        for (value in initialValues) {
+            if (value != "   ") {
+                filteredInitialValues.add(value)
+            }
+        }
     }
 
-    latestComplexHistory.exportComplexHistory(1, 6)
+    for (i in 0..<numberOfParameters) {
+        val listToBeAdded = listOf(names?.get((i % names.size)).toString(),
+            filteredInitialValues?.get(i).toString()
+        )
+        combinedLists.add(listToBeAdded)
+    }
 
+    println(combinedLists)
 }

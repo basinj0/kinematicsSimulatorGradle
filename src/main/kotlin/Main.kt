@@ -9,8 +9,27 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import classes.ErrorList
 
-enum class Step { TITLE, DIMENSION, COMPLEXITY, EXTRAPARAMETERS, INPUTS, RUNNING, RESULTS, CREDITS, HISTORY, SETTINGS, SELECTEDHISTORY, COMPLEXINPUTS, COMPLEXTIME, COMPLEXRUNNING, COMPLEXRESULTS }
+enum class Step {
+    TITLE,
+    DIMENSION,
+    COMPLEXITY,
+    EXTRAPARAMETERS,
+    INPUTS,
+    RUNNING,
+    RESULTS,
+    CREDITS,
+    HISTORY,
+    SETTINGS,
+    SELECTEDHISTORY,
+    COMPLEXINPUTS,
+    COMPLEXTIME,
+    COMPLEXRUNNING,
+    COMPLEXRESULTS,
+    SELECTEDCOMPLEXHISTORY,
+    ERROR
+}
 
 fun main() = application {
 
@@ -36,8 +55,10 @@ fun main() = application {
                     Step.SELECTEDHISTORY -> { currentStep = Step.HISTORY }
                     Step.COMPLEXINPUTS -> { }
                     Step.COMPLEXRUNNING -> { }
-                    Step.COMPLEXTIME -> TODO()
+                    Step.COMPLEXTIME -> { }
                     Step.COMPLEXRESULTS -> { }
+                    Step.SELECTEDCOMPLEXHISTORY -> { currentStep = Step.HISTORY }
+                    Step.ERROR -> { currentStep = Step.TITLE }
                 }
 
                 true
@@ -50,5 +71,10 @@ fun main() = application {
             currentStep = currentStep,
             onStepChange = { newStep -> currentStep = newStep }
         )
+        val errorList = remember {
+            ErrorList { newStep ->
+                currentStep = newStep
+            }
+        }
     }
 }

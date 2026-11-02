@@ -10,6 +10,7 @@ import kotlin.time.TimeSource
 class ComplexLogic {
 
     var allBodies = mutableListOf<ComplexBody>()
+    var elasticity = 0.0
 
     fun resetList() {
         allBodies = mutableListOf<ComplexBody>()
@@ -91,6 +92,8 @@ class ComplexLogic {
             val body = body as ComplexBody1D
             body.outputAllValues()
         }
+
+        history.addToComplex1DHistory(allBodies as List<ComplexBody1D>, duration)
 
         if (Settings.currentSimulationTiming == "Real-Time") {
             var simTime = 0.0
