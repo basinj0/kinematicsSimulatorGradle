@@ -10,9 +10,13 @@ object ThemeManager {
     var currentTheme by mutableStateOf("Dark Theme")
 }
 
-
 object LanguageManager {
     var currentLanguage by mutableStateOf("English")
+}
+
+object Settings {
+    var currentSimulationTiming by mutableStateOf("Clock-Time")
+    var hertz by mutableStateOf("500")
 }
 
 val JetBrainsMono = FontFamily(
@@ -23,4 +27,3 @@ val JetBrainsMono = FontFamily(
     Font(resource = "font/JetBrainsMono-ExtraBold.ttf", weight = FontWeight.ExtraBold),
     Font(resource = "font/JetBrainsMono-Medium.ttf", weight = FontWeight.Medium)
 )
-

@@ -128,7 +128,12 @@ class DataCollector {
     fun pullVariable(variableIndex: Int): List<Double> {
         val output = mutableListOf<Double>()
 
+        var index = 0
+
         for (row in history) {
+            if (index == 0) {
+                index++; continue
+            }
             output.add(row[variableIndex])
         }
 

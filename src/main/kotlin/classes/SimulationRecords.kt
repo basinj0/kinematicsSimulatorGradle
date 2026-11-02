@@ -39,7 +39,7 @@ class SimulationRecords {
 
         val output = mutableListOf<List<String>>()
 
-        for (file in csvFiles.sortedBy { it.name }) {
+        for (file in csvFiles.sortedBy { ((it.name).drop(17).dropLast(4)).toInt() }) {
             getBasicInfoFromCSV(file)?.let {
                 output.add(it)
             }
@@ -87,4 +87,57 @@ class SimulationRecords {
 
         return output
     }
+
+    fun getNumberOfObjectsFromComplexCSV(index: Int): Int? {
+        val file = resolveSafeFile("simulationResults$index.csv")
+
+        val line3 = file.useLines { lines ->
+            lines.elementAtOrNull(2)?.split(",")
+        }
+
+        if (line3 == null) return null
+
+        val newLine3 = mutableListOf<String>()
+
+        for (item in line3) {
+            newLine3.add(item)
+        }
+
+        repeat(7) {
+            newLine3.add("")
+        }
+
+        var index = 0
+
+        while (true) {
+
+            if (newLine3[7 * index] == "") {
+                return index - 1
+            }
+
+            index++
+        }
+    }
+
+    fun convertComplexCSVIntoHistory(index: Int): ComplexDataCollector {
+        val file = resolveSafeFile("simulationResults$index.csv")
+
+        val data = file.useLines { lines ->
+            lines.drop(2)
+                .map {
+                        line ->
+                    line.split(",")
+                        .filter { it.isNotBlank() }
+                        .map { it.convertToDouble() }
+                }
+                .toList()
+        }
+
+        val output = ComplexDataCollector()
+
+        output.complexHistory = data.toMutableList()
+
+        return output
+    }
+
 }
