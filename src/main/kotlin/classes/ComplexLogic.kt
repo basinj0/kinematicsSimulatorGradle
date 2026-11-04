@@ -29,7 +29,7 @@ class ComplexLogic {
 
     fun are1DBodiesColliding(object1: ComplexBody1D, object2: ComplexBody1D): Boolean {
         if ((0.5 * object1.width + 0.5 * object2.width) > abs(object1.position - object2.position)) {
-            collision1D(object1, object2, 1.0)
+            collision1D(object1, object2, elasticity)
             return true
         } else {
             return false

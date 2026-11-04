@@ -1737,7 +1737,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                     "Displacement",
                                                                     latestHistory?.pullVariable(0),
                                                                     latestHistory?.pullVariable(1)
-                                                                ) ?: errorList.error("G01"); onStepChange(Step.ERROR)
+                                                                ) ?: println("Hit")
                                                             }
 
                                                             1 if chosenComplexity == 2 -> {
@@ -1747,7 +1747,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                     "Displacement",
                                                                     latestHistory?.pullVariable(0),
                                                                     latestHistory?.pullVariable(1)
-                                                                ) ?: errorList.error("G01"); onStepChange(Step.ERROR)
+                                                                ) ?: println("Hit")
                                                             }
 
                                                             2 if chosenComplexity == 1 -> {
@@ -1757,7 +1757,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                     "Position Y",
                                                                     latestHistory?.pullVariable(1),
                                                                     latestHistory?.pullVariable(2)
-                                                                ) ?: errorList.error("G01"); onStepChange(Step.ERROR)
+                                                                ) ?: println("Hit")
                                                             }
                                                         }
                                                     }
@@ -2921,7 +2921,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                     latestComplexHistory?.generateGraph(
                                                                         "Position",
                                                                         complexLogic.allBodies.size
-                                                                    ) ?: errorList.error("G01"); onStepChange(Step.ERROR)
+                                                                    ) ?: println("Hit")
                                                                 }
                                                             }
                                                         }
@@ -2942,7 +2942,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                     latestComplexHistory?.generateGraph(
                                                                         "Velocity",
                                                                         complexLogic.allBodies.size
-                                                                    ) ?: errorList.error("G01"); onStepChange(Step.ERROR)
+                                                                    ) ?: println("Hit")
                                                                 }
                                                             }
                                                         }
@@ -3104,7 +3104,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                             records.getNumberOfObjectsFromComplexCSV(
                                                                                 index?.toInt() ?: -1
                                                                             )
-                                                                        ); println("hit 7"); onStepChange(Step.ERROR)
+                                                                        ); println("Hit")
                                                                     }
                                                                 }
                                                             }
@@ -3127,7 +3127,7 @@ fun KinematicsUI(currentStep: Step, onStepChange: (Step) -> Unit) {
                                                                             records.getNumberOfObjectsFromComplexCSV(
                                                                                 index?.toInt() ?: -1
                                                                             )
-                                                                        ); println("hit 6"); onStepChange(Step.ERROR)
+                                                                        ); println("Hit")
                                                                     }
                                                                 }
                                                             }
